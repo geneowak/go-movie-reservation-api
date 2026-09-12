@@ -11,3 +11,20 @@ VALUES
     ($1, $2, $3, NOW(), NOW())
 RETURNING
     *;
+
+-- name: GetRefreshToken :one
+SELECT
+    *
+FROM
+    refresh_tokens
+WHERE
+    token = $1;
+
+-- name: RevokeRefreshToken :exec
+UPDATE
+    refresh_tokens
+SET
+    expires_at = NOW(),
+    updated_at = NOW()
+WHERE
+    token = $1;

@@ -12,6 +12,9 @@ func SetupServer(cfg *ApiConfig, filePathRoot, port string) *http.Server {
 
 	mux.HandleFunc("POST /api/login", cfg.handleLogin)
 
+	mux.HandleFunc("POST /api/auth/refresh", cfg.handleRefreshToken)
+	mux.HandleFunc("POST /api/auth/revoke", cfg.handleRevokeToken)
+
 	return &http.Server{
 		Addr:         ":" + port,
 		Handler:      mux,
