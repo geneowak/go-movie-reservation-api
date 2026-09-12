@@ -6,10 +6,43 @@ package database
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+type Cinema struct {
+	ID              uuid.UUID       `json:"id"`
+	LocationID      uuid.UUID       `json:"location_id"`
+	Name            string          `json:"name"`
+	ExperienceTypes string          `json:"experience_types"`
+	SeatMap         json.RawMessage `json:"seat_map"`
+	CreatedAt       time.Time       `json:"created_at"`
+	UpdatedAt       time.Time       `json:"updated_at"`
+}
+
+type Location struct {
+	ID           uuid.UUID `json:"id"`
+	Name         string    `json:"name"`
+	Address      string    `json:"address"`
+	GoogleMapUrl string    `json:"google_map_url"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+type Movie struct {
+	ID              uuid.UUID `json:"id"`
+	Name            string    `json:"name"`
+	Description     string    `json:"description"`
+	DurationInMins  int32     `json:"duration_in_mins"`
+	TrailerUrl      string    `json:"trailer_url"`
+	Genre           string    `json:"genre"`
+	PgRating        string    `json:"pg_rating"`
+	ExperienceTypes string    `json:"experience_types"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
+}
 
 type RefreshToken struct {
 	Token     string       `json:"token"`
@@ -20,9 +53,29 @@ type RefreshToken struct {
 	UpdatedAt time.Time    `json:"updated_at"`
 }
 
+type Reservation struct {
+	ID         uuid.UUID    `json:"id"`
+	ShowTimeID uuid.UUID    `json:"show_time_id"`
+	UserID     uuid.UUID    `json:"user_id"`
+	Seat       string       `json:"seat"`
+	Status     string       `json:"status"`
+	ReservedAt sql.NullTime `json:"reserved_at"`
+	CreatedAt  time.Time    `json:"created_at"`
+	UpdatedAt  time.Time    `json:"updated_at"`
+}
+
+type ShowTime struct {
+	ID        uuid.UUID `json:"id"`
+	Time      string    `json:"time"`
+	MovieID   uuid.UUID `json:"movie_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type User struct {
 	ID             uuid.UUID `json:"id"`
 	Email          string    `json:"email"`
+	IsAdmin        bool      `json:"is_admin"`
 	HashedPassword string    `json:"-"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
