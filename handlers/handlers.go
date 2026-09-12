@@ -15,6 +15,8 @@ func SetupServer(cfg *ApiConfig, filePathRoot, port string) *http.Server {
 	mux.HandleFunc("POST /api/auth/refresh", cfg.handleRefreshToken)
 	mux.HandleFunc("POST /api/auth/revoke", cfg.handleRevokeToken)
 
+	mux.HandleFunc("POST /api/movies", cfg.middlewareAuth(cfg.handleCreateMovie))
+
 	return &http.Server{
 		Addr:         ":" + port,
 		Handler:      mux,

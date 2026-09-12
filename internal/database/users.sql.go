@@ -42,7 +42,7 @@ INSERT INTO
 VALUES
     (uuidv7(), $1, $2, NOW(), NOW())
 RETURNING
-    id, email, hashed_password, created_at, updated_at
+    id, email, is_admin, hashed_password, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -56,6 +56,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.IsAdmin,
 		&i.HashedPassword,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -65,7 +66,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT
-    id, email, hashed_password, created_at, updated_at
+    id, email, is_admin, hashed_password, created_at, updated_at
 FROM
     users
 WHERE
@@ -80,6 +81,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.IsAdmin,
 		&i.HashedPassword,
 		&i.CreatedAt,
 		&i.UpdatedAt,
