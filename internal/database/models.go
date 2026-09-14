@@ -38,7 +38,7 @@ type Movie struct {
 	Description     string            `json:"description"`
 	DurationInMins  int32             `json:"duration_in_mins"`
 	TrailerUrl      string            `json:"trailer_url"`
-	Genre           string            `json:"genre"`
+	Genre           types.StringSlice `json:"genre"`
 	PgRating        string            `json:"pg_rating"`
 	ExperienceTypes types.StringSlice `json:"experience_types"`
 	CreatedAt       time.Time         `json:"created_at"`
