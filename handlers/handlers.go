@@ -8,7 +8,7 @@ import (
 func SetupServer(cfg *ApiConfig, filePathRoot, port string) *http.Server {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /api/users", cfg.handleCreateUser)
+	mux.HandleFunc("POST /api/signup", cfg.handleCreateUser)
 
 	mux.HandleFunc("POST /api/login", cfg.handleLogin)
 

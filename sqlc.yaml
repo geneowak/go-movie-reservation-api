@@ -10,3 +10,7 @@ sql:
         overrides:
           - column: "users.hashed_password"
             go_struct_tag: 'json:"-"'
+          - column: "movies.experience_types"
+            go_type:
+              import: "github.com/geneowak/go-expense-tracker/internal/types"
+              type: "StringSlice"

@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/geneowak/go-expense-tracker/internal/types"
 	"github.com/google/uuid"
 )
 
@@ -32,16 +33,16 @@ type Location struct {
 }
 
 type Movie struct {
-	ID              uuid.UUID `json:"id"`
-	Name            string    `json:"name"`
-	Description     string    `json:"description"`
-	DurationInMins  int32     `json:"duration_in_mins"`
-	TrailerUrl      string    `json:"trailer_url"`
-	Genre           string    `json:"genre"`
-	PgRating        string    `json:"pg_rating"`
-	ExperienceTypes string    `json:"experience_types"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID              uuid.UUID         `json:"id"`
+	Name            string            `json:"name"`
+	Description     string            `json:"description"`
+	DurationInMins  int32             `json:"duration_in_mins"`
+	TrailerUrl      string            `json:"trailer_url"`
+	Genre           string            `json:"genre"`
+	PgRating        string            `json:"pg_rating"`
+	ExperienceTypes types.StringSlice `json:"experience_types"`
+	CreatedAt       time.Time         `json:"created_at"`
+	UpdatedAt       time.Time         `json:"updated_at"`
 }
 
 type RefreshToken struct {
