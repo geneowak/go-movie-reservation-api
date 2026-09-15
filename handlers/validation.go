@@ -41,6 +41,8 @@ func getErrorMsg(err validator.FieldError) string {
 		return fmt.Sprintf("The %s field is required", err.Field())
 	case "email":
 		return fmt.Sprintf("The %s must be a valid email.", err.Field())
+	case "url":
+		return fmt.Sprintf("The %s must be a valid URL.", err.Field())
 	case "min":
 		return fmt.Sprintf("The %s field must be at least %s characters long.", err.Field(), err.Param())
 	case "max":
