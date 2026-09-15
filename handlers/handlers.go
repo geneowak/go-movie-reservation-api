@@ -15,11 +15,12 @@ func SetupServer(cfg *ApiConfig, filePathRoot, port string) *http.Server {
 	mux.HandleFunc("POST /api/auth/refresh", cfg.handleRefreshToken)
 	mux.HandleFunc("POST /api/auth/revoke", cfg.handleRevokeToken)
 
-	mux.HandleFunc("POST /api/movies", cfg.middlewareAuth(cfg.handleCreateMovie))
+	// Admin routes
+	mux.HandleFunc("POST /api/movies", cfg.middlewareAdminAuth(cfg.handleCreateMovie))
 
-	mux.HandleFunc("POST /api/locations", cfg.middlewareAuth(cfg.handleCreateLocation))
+	mux.HandleFunc("POST /api/locations", cfg.middlewareAdminAuth(cfg.handleCreateLocation))
 
-	mux.HandleFunc("POST /api/cinemas", cfg.middlewareAuth(cfg.handleCreateCinema))
+	mux.HandleFunc("POST /api/cinemas", cfg.middlewareAdminAuth(cfg.handleCreateCinema))
 
 	return &http.Server{
 		Addr:         ":" + port,

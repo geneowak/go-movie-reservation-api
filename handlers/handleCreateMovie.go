@@ -18,7 +18,6 @@ type createMovieRequest struct {
 }
 
 func (cfg *ApiConfig) handleCreateMovie(w http.ResponseWriter, r *http.Request) {
-	// TODO: if user is not an admin, they shouldn't be able to do anything (might need to put this in a middleware)
 	var req createMovieRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Failed to decode request", err)

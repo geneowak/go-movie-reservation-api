@@ -22,6 +22,16 @@ WHERE
 LIMIT
     1;
 
+-- name: GetUserById :one
+SELECT
+    *
+FROM
+    users
+WHERE
+    id = $1
+LIMIT
+    1;
+
 -- name: CheckUserId :one
 SELECT
     EXISTS(
