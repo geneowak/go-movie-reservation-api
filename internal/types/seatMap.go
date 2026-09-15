@@ -12,7 +12,6 @@ type SeatMap struct {
 		Seats []struct {
 			Number int    `json:"number"`
 			Type   string `json:"type"`
-			Status string `json:"status"`
 		} `json:"seats"`
 	} `json:"rows"`
 	TotalSeats int    `json:"total_seats"`
