@@ -18,3 +18,11 @@ sql:
             go_type:
               import: "github.com/geneowak/go-expense-tracker/internal/types"
               type: "StringSlice"
+          - column: "cinemas.experience_types"
+            go_type:
+              import: "github.com/geneowak/go-expense-tracker/internal/types"
+              type: "StringSlice"
+          - column: "cinemas.seat_map"
+            go_type:
+              import: "github.com/geneowak/go-expense-tracker/internal/types"
+              type: "SeatMap"

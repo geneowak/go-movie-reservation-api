@@ -6,7 +6,6 @@ package database
 
 import (
 	"database/sql"
-	"encoding/json"
 	"time"
 
 	"github.com/geneowak/go-expense-tracker/internal/types"
@@ -14,13 +13,13 @@ import (
 )
 
 type Cinema struct {
-	ID              uuid.UUID       `json:"id"`
-	LocationID      uuid.UUID       `json:"location_id"`
-	Name            string          `json:"name"`
-	ExperienceTypes string          `json:"experience_types"`
-	SeatMap         json.RawMessage `json:"seat_map"`
-	CreatedAt       time.Time       `json:"created_at"`
-	UpdatedAt       time.Time       `json:"updated_at"`
+	ID              uuid.UUID         `json:"id"`
+	LocationID      uuid.UUID         `json:"location_id"`
+	Name            string            `json:"name"`
+	ExperienceTypes types.StringSlice `json:"experience_types"`
+	SeatMap         types.SeatMap     `json:"seat_map"`
+	CreatedAt       time.Time         `json:"created_at"`
+	UpdatedAt       time.Time         `json:"updated_at"`
 }
 
 type Location struct {
