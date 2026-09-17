@@ -9,6 +9,7 @@ import (
 
 	"github.com/geneowak/go-expense-tracker/internal/database"
 	migrations "github.com/geneowak/go-expense-tracker/sql"
+	"github.com/joho/godotenv"
 
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
@@ -26,6 +27,11 @@ var (
  */
 func OpenAndMigrate(t *testing.T) *sql.DB {
 	t.Helper()
+
+	err := godotenv.Load("../.env.testing")
+	if err != nil {
+		t.Fatalf("Error loading .env file: %v", err)
+	}
 
 	dsn := os.Getenv("TEST_DB_URL")
 	if dsn == "" {

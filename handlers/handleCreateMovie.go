@@ -20,7 +20,7 @@ type createMovieRequest struct {
 func (cfg *ApiConfig) handleCreateMovie(w http.ResponseWriter, r *http.Request) {
 	var req createMovieRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Failed to decode request", err)
+		respondWithError(w, http.StatusBadRequest, "Malformed request body", err)
 		return
 	}
 
