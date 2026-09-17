@@ -43,15 +43,7 @@ func main() {
 	* 2. it is thread safe and so can be used simultaneously
 	* 3. when we add custom registrations, they'll be carried through to all users
 	**/
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	// update the validator to return the json field name instead of the struct name
-	validate.RegisterTagNameFunc(func(field reflect.StructField) string {
-		name, _, _ := strings.Cut(field.Tag.Get("json"), ",")
-		if name == "-" {
-			return ""
-		}
-		return name
-	})
+	validate := handlers.CreateValidator()
 
 	cfg := handlers.ApiConfig{
 		DB:        database.New(db),

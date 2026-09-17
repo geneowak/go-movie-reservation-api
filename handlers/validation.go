@@ -4,9 +4,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
+
+func CreateValidator() *validator.Validate {
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	// update the validator to return the json field name instead of the struct name
+	validate.RegisterTagNameFunc(func(field reflect.StructField) string {
+		name, _, _ := strings.Cut(field.Tag.Get("json"), ",")
+		if name == "-" {
+			return ""
+		}
+		return name
+	})
+
+	return validate
+}
 
 func handleValidationErrors(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", "application/json")
