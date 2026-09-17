@@ -12,9 +12,9 @@ type createMovieRequest struct {
 	Description     string   `json:"description" validate:"required,min=10"`
 	DurationInMins  int      `json:"duration_in_mins" validate:"required,number"`
 	TrailerUrl      string   `json:"trailer_url" validate:"required,url"`
-	Genre           []string `json:"genre" validate:"min=1,dive,required"`
+	Genre           []string `json:"genre" validate:"required,min=1,dive,required"`
 	PgRating        string   `json:"pg_rating" validate:"required,min=2"`
-	ExperienceTypes []string `json:"experience_types" validate:"min=1,dive,required"`
+	ExperienceTypes []string `json:"experience_types" validate:"required,min=1,dive,required"`
 }
 
 func (cfg *ApiConfig) handleCreateMovie(w http.ResponseWriter, r *http.Request) {

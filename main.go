@@ -4,12 +4,9 @@ import (
 	"database/sql"
 	"log"
 	"os"
-	"reflect"
-	"strings"
 
 	"github.com/geneowak/go-expense-tracker/handlers"
 	"github.com/geneowak/go-expense-tracker/internal/database"
-	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )

@@ -60,9 +60,23 @@ func getErrorMsg(err validator.FieldError) string {
 	case "url":
 		return fmt.Sprintf("The %s must be a valid URL.", err.Field())
 	case "min":
-		return fmt.Sprintf("The %s field must be at least %s characters long.", err.Field(), err.Param())
+		switch err.Kind() {
+		case reflect.Slice, reflect.Array:
+			return fmt.Sprintf("The %s field must contain atleast %s items.", err.Field(), err.Param())
+		case reflect.Map:
+			return fmt.Sprintf("The %s field must have at least %s entries.", err.Field(), err.Param())
+		default:
+			return fmt.Sprintf("The %s field must be at least %s characters long.", err.Field(), err.Param())
+		}
 	case "max":
-		return fmt.Sprintf("The %s field must be at most %s characters long.", err.Field(), err.Param())
+		switch err.Kind() {
+		case reflect.Slice, reflect.Array:
+			return fmt.Sprintf("The %s field must not contain more than %s items.", err.Field(), err.Param())
+		case reflect.Map:
+			return fmt.Sprintf("The %s field must not have more than %s entries.", err.Field(), err.Param())
+		default:
+			return fmt.Sprintf("The %s field must be at most %s characters long.", err.Field(), err.Param())
+		}
 	case "alphanum":
 		return fmt.Sprintf("The %s field must be alphanumeric.", err.Field())
 	default:
