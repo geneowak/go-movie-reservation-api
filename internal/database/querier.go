@@ -17,6 +17,7 @@ type Querier interface {
 	CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie, error)
 	CreateRefreshToken(ctx context.Context, arg CreateRefreshTokenParams) (RefreshToken, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
 	GetRefreshToken(ctx context.Context, token string) (RefreshToken, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserById(ctx context.Context, id uuid.UUID) (User, error)

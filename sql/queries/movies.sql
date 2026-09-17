@@ -27,3 +27,11 @@ VALUES
     )
 RETURNING
     *;
+
+-- name: GetMovieById :one
+SELECT
+    *
+FROM
+    movies
+WHERE
+    id = $1;

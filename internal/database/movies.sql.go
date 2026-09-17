@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/geneowak/go-expense-tracker/internal/types"
+	"github.com/google/uuid"
 )
 
 const createMovie = `-- name: CreateMovie :one
@@ -62,6 +63,33 @@ func (q *Queries) CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie
 		arg.PgRating,
 		arg.ExperienceTypes,
 	)
+	var i Movie
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.DurationInMins,
+		&i.TrailerUrl,
+		&i.Genre,
+		&i.PgRating,
+		&i.ExperienceTypes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getMovieById = `-- name: GetMovieById :one
+SELECT
+    id, name, description, duration_in_mins, trailer_url, genre, pg_rating, experience_types, created_at, updated_at
+FROM
+    movies
+WHERE
+    id = $1
+`
+
+func (q *Queries) GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error) {
+	row := q.db.QueryRowContext(ctx, getMovieById, id)
 	var i Movie
 	err := row.Scan(
 		&i.ID,
