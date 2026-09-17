@@ -65,11 +65,18 @@ type Reservation struct {
 }
 
 type ShowTime struct {
-	ID        uuid.UUID `json:"id"`
-	Time      string    `json:"time"`
-	MovieID   uuid.UUID `json:"movie_id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID             uuid.UUID      `json:"id"`
+	StartTime      time.Time      `json:"start_time"`
+	Price          int32          `json:"price"`
+	Description    sql.NullString `json:"description"`
+	PriceCurrency  string         `json:"price_currency"`
+	MovieID        uuid.UUID      `json:"movie_id"`
+	CinemaID       uuid.UUID      `json:"cinema_id"`
+	ExperienceType string         `json:"experience_type"`
+	StartDate      time.Time      `json:"start_date"`
+	EndDate        time.Time      `json:"end_date"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
 }
 
 type User struct {
