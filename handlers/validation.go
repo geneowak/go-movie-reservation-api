@@ -10,7 +10,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func CreateValidator() *validator.Validate {
+func CreateValidator(cfg *ApiConfig) *validator.Validate {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	// update the validator to return the json field name instead of the struct name
 	validate.RegisterTagNameFunc(func(field reflect.StructField) string {
@@ -20,6 +20,9 @@ func CreateValidator() *validator.Validate {
 		}
 		return name
 	})
+
+	// register custom validators
+	validate.RegisterValidation("cinema-exists", cfg.ValidateCinemaId)
 
 	return validate
 }
@@ -83,6 +86,9 @@ func getErrorMsg(err validator.FieldError) string {
 		}
 	case "alphanum":
 		return fmt.Sprintf("The %s field must be alphanumeric.", err.Field())
+	// custom validator errors
+	case "cinema-exists":
+		return fmt.Sprintf("The %s field must be a valid ID of an existing cinema.", err.Field())
 	default:
 		return err.Error()
 	}

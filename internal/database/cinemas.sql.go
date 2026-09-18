@@ -12,6 +12,25 @@ import (
 	"github.com/google/uuid"
 )
 
+const checkCinemaById = `-- name: CheckCinemaById :one
+SELECT
+    EXISTS(
+        SELECT
+            1
+        FROM
+            cinemas
+        WHERE
+            id = $1
+    )
+`
+
+func (q *Queries) CheckCinemaById(ctx context.Context, id uuid.UUID) (bool, error) {
+	row := q.db.QueryRow(ctx, checkCinemaById, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const createCinema = `-- name: CreateCinema :one
 INSERT INTO
     cinemas(
@@ -24,7 +43,7 @@ INSERT INTO
         updated_at
     )
 VALUES
-(uuidv7(), $1, $2, $3, $4, NOW(), NOW())
+    (uuidv7(), $1, $2, $3, $4, NOW(), NOW())
 RETURNING
     id, location_id, name, experience_types, seat_map, created_at, updated_at
 `

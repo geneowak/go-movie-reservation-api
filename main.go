@@ -40,14 +40,15 @@ func main() {
 	* 2. it is thread safe and so can be used simultaneously
 	* 3. when we add custom registrations, they'll be carried through to all users
 	**/
-	validate := handlers.CreateValidator()
 
 	cfg := handlers.ApiConfig{
 		DB:        database.New(db),
 		Platform:  platform,
 		JwtSecret: jwtSecret,
-		Validate:  validate,
 	}
+	validate := handlers.CreateValidator(&cfg)
+	cfg.Validate = validate
+
 	server := handlers.SetupServer(&cfg, filePathRoot, port)
 
 	log.Println("Listening on port:", port)

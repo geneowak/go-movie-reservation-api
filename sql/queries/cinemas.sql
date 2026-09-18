@@ -10,6 +10,17 @@ INSERT INTO
         updated_at
     )
 VALUES
-(uuidv7(), $1, $2, $3, $4, NOW(), NOW())
+    (uuidv7(), $1, $2, $3, $4, NOW(), NOW())
 RETURNING
     *;
+
+-- name: CheckCinemaById :one
+SELECT
+    EXISTS(
+        SELECT
+            1
+        FROM
+            cinemas
+        WHERE
+            id = $1
+    );

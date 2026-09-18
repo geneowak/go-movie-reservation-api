@@ -5,10 +5,13 @@ import (
 )
 
 func newTestApiConfig(querier database.Querier) *ApiConfig {
-	validate := CreateValidator()
-
-	return &ApiConfig{
-		DB:       querier,
-		Validate: validate,
+	cfg := ApiConfig{
+		DB: querier,
 	}
+
+	validate := CreateValidator(&cfg)
+
+	cfg.Validate = validate
+
+	return &cfg
 }
