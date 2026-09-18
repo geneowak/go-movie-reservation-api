@@ -59,7 +59,7 @@ VALUES
         NOW()
     )
 RETURNING
-    id, name, description, duration_in_mins, trailer_url, genre, pg_rating, experience_types, created_at, updated_at
+    id, name, poster_image_url, description, duration_in_mins, trailer_url, genre, pg_rating, experience_types, created_at, updated_at
 `
 
 type CreateMovieParams struct {
@@ -86,6 +86,7 @@ func (q *Queries) CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.PosterImageUrl,
 		&i.Description,
 		&i.DurationInMins,
 		&i.TrailerUrl,
@@ -100,7 +101,7 @@ func (q *Queries) CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie
 
 const getMovieById = `-- name: GetMovieById :one
 SELECT
-    id, name, description, duration_in_mins, trailer_url, genre, pg_rating, experience_types, created_at, updated_at
+    id, name, poster_image_url, description, duration_in_mins, trailer_url, genre, pg_rating, experience_types, created_at, updated_at
 FROM
     movies
 WHERE
@@ -113,6 +114,7 @@ func (q *Queries) GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.PosterImageUrl,
 		&i.Description,
 		&i.DurationInMins,
 		&i.TrailerUrl,

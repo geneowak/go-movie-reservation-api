@@ -25,6 +25,7 @@ ADMIN ROUTES
 - [ ] GET /api/cinemas
 - [ ] PUT /api/cinemas/{cinemaId} #e.g updating seat map
 - [ ] GET /api/admin/movies (returns all the movies for admin management)
+- [ ] PUT /api/movies/{movieId}
 - [ ] DELETE /api/movies/{movieId}
 - [ ] PUT /api/users/{userId} # assigning or removing admins
 

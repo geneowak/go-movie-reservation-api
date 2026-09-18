@@ -33,6 +33,7 @@ type Location struct {
 type Movie struct {
 	ID              uuid.UUID         `json:"id"`
 	Name            string            `json:"name"`
+	PosterImageUrl  *string           `json:"poster_image_url"`
 	Description     string            `json:"description"`
 	DurationInMins  int32             `json:"duration_in_mins"`
 	TrailerUrl      string            `json:"trailer_url"`
