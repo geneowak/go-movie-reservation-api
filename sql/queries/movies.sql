@@ -35,3 +35,14 @@ FROM
     movies
 WHERE
     id = $1;
+
+-- name: CheckMovieById :one
+SELECT
+    EXISTS(
+        SELECT
+            1
+        FROM
+            movies
+        WHERE
+            id = $1
+    );

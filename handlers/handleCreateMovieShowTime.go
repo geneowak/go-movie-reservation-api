@@ -27,6 +27,11 @@ func (cfg *ApiConfig) handleCreateMovieShowTime(w http.ResponseWriter, r *http.R
 		respondWithError(w, http.StatusBadRequest, "Invalid movie id.", err)
 		return
 	}
+	// ensure that the movie id that was selected exists.
+	if exists, err := cfg.DB.CheckMovieById(r.Context(), movieId); err != nil || !exists {
+		respondWithError(w, http.StatusBadRequest, "Invalid movie id.", err)
+		return
+	}
 
 	var req createMovieShowTimeRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

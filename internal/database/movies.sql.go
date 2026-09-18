@@ -12,6 +12,25 @@ import (
 	"github.com/google/uuid"
 )
 
+const checkMovieById = `-- name: CheckMovieById :one
+SELECT
+    EXISTS(
+        SELECT
+            1
+        FROM
+            movies
+        WHERE
+            id = $1
+    )
+`
+
+func (q *Queries) CheckMovieById(ctx context.Context, id uuid.UUID) (bool, error) {
+	row := q.db.QueryRow(ctx, checkMovieById, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const createMovie = `-- name: CreateMovie :one
 INSERT INTO
     movies(
