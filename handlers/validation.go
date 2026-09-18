@@ -59,6 +59,10 @@ func getErrorMsg(err validator.FieldError) string {
 		return fmt.Sprintf("The %s must be a valid email.", err.Field())
 	case "url":
 		return fmt.Sprintf("The %s must be a valid URL.", err.Field())
+	case "gtfield", "gtcsfield":
+		return fmt.Sprintf("The %s field must be a greater than the %s field.", err.Field(), err.Param())
+	case "gtefield", "gtecsfield":
+		return fmt.Sprintf("The %s field must be a greater than or equal to the %s field.", err.Field(), err.Param())
 	case "min":
 		switch err.Kind() {
 		case reflect.Slice, reflect.Array:

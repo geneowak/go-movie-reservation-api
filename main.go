@@ -7,7 +7,6 @@ import (
 
 	"github.com/geneowak/go-expense-tracker/handlers"
 	"github.com/geneowak/go-expense-tracker/internal/database"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
