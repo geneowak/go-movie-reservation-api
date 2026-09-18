@@ -126,3 +126,50 @@ func (q *Queries) GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
 	)
 	return i, err
 }
+
+const getShowingMovies = `-- name: GetShowingMovies :many
+SELECT
+    movies.id, movies.name, movies.poster_image_url, movies.description, movies.duration_in_mins, movies.trailer_url, movies.genre, movies.pg_rating, movies.experience_types, movies.created_at, movies.updated_at
+FROM
+    movies
+    LEFT JOIN show_times ON show_times.movie_id = movies.id
+WHERE
+    show_times.start_date >= NOW()
+    AND show_times.endtimes <= NOW()
+GROUP BY
+    movies.id
+ORDER BY
+    show_times.start_date
+`
+
+func (q *Queries) GetShowingMovies(ctx context.Context) ([]Movie, error) {
+	rows, err := q.db.Query(ctx, getShowingMovies)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Movie
+	for rows.Next() {
+		var i Movie
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.PosterImageUrl,
+			&i.Description,
+			&i.DurationInMins,
+			&i.TrailerUrl,
+			&i.Genre,
+			&i.PgRating,
+			&i.ExperienceTypes,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

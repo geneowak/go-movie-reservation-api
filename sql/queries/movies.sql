@@ -46,3 +46,17 @@ SELECT
         WHERE
             id = $1
     );
+
+-- name: GetShowingMovies :many
+SELECT
+    movies.*
+FROM
+    movies
+    LEFT JOIN show_times ON show_times.movie_id = movies.id
+WHERE
+    show_times.start_date >= NOW()
+    AND show_times.endtimes <= NOW()
+GROUP BY
+    movies.id
+ORDER BY
+    show_times.start_date;
