@@ -1,7 +1,7 @@
 package testdb
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"os"
 	"sync"
@@ -9,14 +9,15 @@ import (
 
 	"github.com/geneowak/go-expense-tracker/internal/database"
 	migrations "github.com/geneowak/go-expense-tracker/sql"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
 
-	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 )
 
 var (
-	openDb      *sql.DB
+	openConn    *pgx.Conn
 	migrateOnce sync.Once
 	migrateErr  error
 )
@@ -25,8 +26,9 @@ var (
 * Connects to TEST_DB_URL and runs goose migrations once per test binary.
 * Returns (nil, nil) when TEST_DB_URL is unset so callers can skip real-db tests gracefully
  */
-func OpenAndMigrate(t *testing.T) *sql.DB {
+func OpenAndMigrate(t *testing.T) *pgx.Conn {
 	t.Helper()
+	ctx := context.Background()
 
 	err := godotenv.Load("../.env.testing")
 	if err != nil {
@@ -40,18 +42,22 @@ func OpenAndMigrate(t *testing.T) *sql.DB {
 
 	migrateOnce.Do(func() {
 		var err error
-		openDb, err = sql.Open("postgres", dsn)
+		openConn, err = pgx.Connect(ctx, dsn)
 		if err != nil {
 			migrateErr = fmt.Errorf("Error opening test db: %w", err)
 			return
 		}
+
+		connConfig := openConn.Config()
+
+		gooseDb := stdlib.OpenDB(*connConfig)
 
 		goose.SetBaseFS(migrations.EmbedMigrations)
 		if err := goose.SetDialect("postgres"); err != nil {
 			migrateErr = fmt.Errorf("Error setting dialect: %w", err)
 			return
 		}
-		if err := goose.Up(openDb, "schema"); err != nil {
+		if err := goose.Up(gooseDb, "schema"); err != nil {
 			migrateErr = fmt.Errorf("Error migrating db: %w", err)
 			return
 		}
@@ -60,16 +66,16 @@ func OpenAndMigrate(t *testing.T) *sql.DB {
 		t.Fatalf("Test db setup failed: %v", migrateErr)
 	}
 
-	if err := openDb.Ping(); err != nil {
+	if err := openConn.Ping(context.Background()); err != nil {
 		t.Fatalf("unable to reach database: %v", err)
 	}
 
-	return openDb
+	return openConn
 }
 
 // bundles a transaction with a Queries instance bound to it
 type Scope struct {
-	Tx      *sql.Tx
+	Tx      pgx.Tx
 	Queries *database.Queries
 }
 
@@ -78,16 +84,16 @@ type Scope struct {
 * Transaction is rolled back automatically when the test finishes
 * So each test case runs in isolation on a clean slate, just like Laravel's Refresh Database
  */
-func Begin(t *testing.T, db *sql.DB) Scope {
+func Begin(t *testing.T, conn *pgx.Conn) Scope {
 	t.Helper()
 
-	tx, err := db.Begin()
+	tx, err := conn.Begin(context.Background())
 	if err != nil {
 		t.Fatalf("Failed to begin transaction: %v", err)
 	}
 
 	t.Cleanup(func() {
-		tx.Rollback()
+		tx.Rollback(context.Background())
 	})
 
 	return Scope{

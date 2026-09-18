@@ -54,7 +54,7 @@ type CreateMovieParams struct {
 }
 
 func (q *Queries) CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie, error) {
-	row := q.db.QueryRowContext(ctx, createMovie,
+	row := q.db.QueryRow(ctx, createMovie,
 		arg.Name,
 		arg.Description,
 		arg.DurationInMins,
@@ -89,7 +89,7 @@ WHERE
 `
 
 func (q *Queries) GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error) {
-	row := q.db.QueryRowContext(ctx, getMovieById, id)
+	row := q.db.QueryRow(ctx, getMovieById, id)
 	var i Movie
 	err := row.Scan(
 		&i.ID,

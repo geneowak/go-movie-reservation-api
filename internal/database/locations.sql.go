@@ -32,7 +32,7 @@ type CreateLocationParams struct {
 }
 
 func (q *Queries) CreateLocation(ctx context.Context, arg CreateLocationParams) (Location, error) {
-	row := q.db.QueryRowContext(ctx, createLocation, arg.Name, arg.Address, arg.GoogleMapUrl)
+	row := q.db.QueryRow(ctx, createLocation, arg.Name, arg.Address, arg.GoogleMapUrl)
 	var i Location
 	err := row.Scan(
 		&i.ID,

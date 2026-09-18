@@ -37,7 +37,7 @@ type CreateCinemaParams struct {
 }
 
 func (q *Queries) CreateCinema(ctx context.Context, arg CreateCinemaParams) (Cinema, error) {
-	row := q.db.QueryRowContext(ctx, createCinema,
+	row := q.db.QueryRow(ctx, createCinema,
 		arg.Name,
 		arg.LocationID,
 		arg.ExperienceTypes,

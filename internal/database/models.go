@@ -5,7 +5,6 @@
 package database
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/geneowak/go-expense-tracker/internal/types"
@@ -45,38 +44,38 @@ type Movie struct {
 }
 
 type RefreshToken struct {
-	Token     string       `json:"token"`
-	UserID    uuid.UUID    `json:"user_id"`
-	ExpiresAt time.Time    `json:"expires_at"`
-	RevokedAt sql.NullTime `json:"revoked_at"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt time.Time    `json:"updated_at"`
+	Token     string     `json:"token"`
+	UserID    uuid.UUID  `json:"user_id"`
+	ExpiresAt time.Time  `json:"expires_at"`
+	RevokedAt *time.Time `json:"revoked_at"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 type Reservation struct {
-	ID         uuid.UUID    `json:"id"`
-	ShowTimeID uuid.UUID    `json:"show_time_id"`
-	UserID     uuid.UUID    `json:"user_id"`
-	Seat       string       `json:"seat"`
-	Status     string       `json:"status"`
-	ReservedAt sql.NullTime `json:"reserved_at"`
-	CreatedAt  time.Time    `json:"created_at"`
-	UpdatedAt  time.Time    `json:"updated_at"`
+	ID         uuid.UUID  `json:"id"`
+	ShowTimeID uuid.UUID  `json:"show_time_id"`
+	UserID     uuid.UUID  `json:"user_id"`
+	Seat       string     `json:"seat"`
+	Status     string     `json:"status"`
+	ReservedAt *time.Time `json:"reserved_at"`
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
 type ShowTime struct {
-	ID             uuid.UUID      `json:"id"`
-	StartTime      time.Time      `json:"start_time"`
-	Price          int32          `json:"price"`
-	Description    sql.NullString `json:"description"`
-	PriceCurrency  string         `json:"price_currency"`
-	MovieID        uuid.UUID      `json:"movie_id"`
-	CinemaID       uuid.UUID      `json:"cinema_id"`
-	ExperienceType string         `json:"experience_type"`
-	StartDate      time.Time      `json:"start_date"`
-	EndDate        time.Time      `json:"end_date"`
-	CreatedAt      time.Time      `json:"created_at"`
-	UpdatedAt      time.Time      `json:"updated_at"`
+	ID             uuid.UUID `json:"id"`
+	StartTime      time.Time `json:"start_time"`
+	Price          int32     `json:"price"`
+	Description    *string   `json:"description"`
+	PriceCurrency  string    `json:"price_currency"`
+	MovieID        uuid.UUID `json:"movie_id"`
+	CinemaID       uuid.UUID `json:"cinema_id"`
+	ExperienceType string    `json:"experience_type"`
+	StartDate      time.Time `json:"start_date"`
+	EndDate        time.Time `json:"end_date"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 type User struct {

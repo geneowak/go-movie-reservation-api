@@ -24,7 +24,7 @@ func (cfg *ApiConfig) handleRevokeToken(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if refreshToken.RevokedAt.Valid {
+	if refreshToken.RevokedAt != nil {
 		respondWithError(w, http.StatusUnauthorized, "Refresh token has already been revoked", nil)
 		return
 	}

@@ -54,7 +54,7 @@ type CreateShowTimeParams struct {
 }
 
 func (q *Queries) CreateShowTime(ctx context.Context, arg CreateShowTimeParams) (ShowTime, error) {
-	row := q.db.QueryRowContext(ctx, createShowTime,
+	row := q.db.QueryRow(ctx, createShowTime,
 		arg.StartTime,
 		arg.Price,
 		arg.MovieID,

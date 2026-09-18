@@ -1,14 +1,15 @@
 package main
 
 import (
-	"database/sql"
+	"context"
 	"log"
 	"os"
 
 	"github.com/geneowak/go-expense-tracker/handlers"
 	"github.com/geneowak/go-expense-tracker/internal/database"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -26,9 +27,9 @@ func main() {
 		log.Fatal("JWT_SECRET env variable has not been set")
 	}
 
-	db, err := sql.Open("postgres", dbUrl)
+	db, err := pgxpool.New(context.Background(), dbUrl)
 	if err != nil {
-		log.Fatal("Failed to open the DB")
+		log.Fatal("Failed to open the DB", err)
 	}
 	const filePathRoot string = "."
 	port := "8080"
