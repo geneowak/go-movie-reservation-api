@@ -2,7 +2,6 @@
 CREATE TABLE movies(
     id uuid PRIMARY KEY,
     name varchar(255) NOT NULL,
-    poster_image_url text,
     description text NOT NULL,
     duration_in_mins int NOT NULL,
     trailer_url text NOT NULL,

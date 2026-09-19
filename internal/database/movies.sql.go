@@ -59,7 +59,7 @@ VALUES
         NOW()
     )
 RETURNING
-    id, name, poster_image_url, description, duration_in_mins, trailer_url, genre, pg_rating, experience_types, created_at, updated_at
+    id, name, description, duration_in_mins, trailer_url, genre, pg_rating, experience_types, created_at, updated_at, poster_image_url
 `
 
 type CreateMovieParams struct {
@@ -86,7 +86,6 @@ func (q *Queries) CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.PosterImageUrl,
 		&i.Description,
 		&i.DurationInMins,
 		&i.TrailerUrl,
@@ -95,13 +94,14 @@ func (q *Queries) CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie
 		&i.ExperienceTypes,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.PosterImageUrl,
 	)
 	return i, err
 }
 
 const getMovieById = `-- name: GetMovieById :one
 SELECT
-    id, name, poster_image_url, description, duration_in_mins, trailer_url, genre, pg_rating, experience_types, created_at, updated_at
+    id, name, description, duration_in_mins, trailer_url, genre, pg_rating, experience_types, created_at, updated_at, poster_image_url
 FROM
     movies
 WHERE
@@ -114,7 +114,6 @@ func (q *Queries) GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.PosterImageUrl,
 		&i.Description,
 		&i.DurationInMins,
 		&i.TrailerUrl,
@@ -123,13 +122,14 @@ func (q *Queries) GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
 		&i.ExperienceTypes,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.PosterImageUrl,
 	)
 	return i, err
 }
 
 const getShowingMovies = `-- name: GetShowingMovies :many
 SELECT
-    movies.id, movies.name, movies.poster_image_url, movies.description, movies.duration_in_mins, movies.trailer_url, movies.genre, movies.pg_rating, movies.experience_types, movies.created_at, movies.updated_at
+    movies.id, movies.name, movies.description, movies.duration_in_mins, movies.trailer_url, movies.genre, movies.pg_rating, movies.experience_types, movies.created_at, movies.updated_at, movies.poster_image_url
 FROM
     movies
     LEFT JOIN show_times ON show_times.movie_id = movies.id
@@ -154,7 +154,6 @@ func (q *Queries) GetShowingMovies(ctx context.Context) ([]Movie, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.PosterImageUrl,
 			&i.Description,
 			&i.DurationInMins,
 			&i.TrailerUrl,
@@ -163,6 +162,7 @@ func (q *Queries) GetShowingMovies(ctx context.Context) ([]Movie, error) {
 			&i.ExperienceTypes,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.PosterImageUrl,
 		); err != nil {
 			return nil, err
 		}
