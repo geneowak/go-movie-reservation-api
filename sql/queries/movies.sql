@@ -49,14 +49,43 @@ SELECT
 
 -- name: GetShowingMovies :many
 SELECT
-    movies.*
+    movies.*,
+    coalesce(
+        (
+            SELECT
+                jsonb_agg(
+                    to_jsonb(st)
+                    ORDER BY
+                        st.start_date,
+                        st.start_time
+                )
+            FROM
+                show_times st
+            WHERE
+                st.movie_id = movies.id
+                AND st.end_date >= NOW()
+        ),
+        '[]'::jsonb
+    ) AS show_times
 FROM
     movies
-    LEFT JOIN show_times ON show_times.movie_id = movies.id
 WHERE
-    show_times.start_date >= NOW()
-    AND show_times.endtimes <= NOW()
-GROUP BY
-    movies.id
+    EXISTS (
+        SELECT
+            1
+        FROM
+            show_times st
+        WHERE
+            st.movie_id = movies.id
+            AND st.end_date >= NOW()
+    )
 ORDER BY
-    show_times.start_date;
+    (
+        SELECT
+            MIN(st.start_date)
+        FROM
+            show_times st
+        WHERE
+            st.movie_id = movies.id
+            AND st.end_date >= NOW()
+    ) ASC;

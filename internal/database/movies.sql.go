@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/geneowak/go-expense-tracker/internal/types"
 	"github.com/google/uuid"
@@ -129,28 +130,72 @@ func (q *Queries) GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
 
 const getShowingMovies = `-- name: GetShowingMovies :many
 SELECT
-    movies.id, movies.name, movies.description, movies.duration_in_mins, movies.trailer_url, movies.genre, movies.pg_rating, movies.experience_types, movies.created_at, movies.updated_at, movies.poster_image_url
+    movies.id, movies.name, movies.description, movies.duration_in_mins, movies.trailer_url, movies.genre, movies.pg_rating, movies.experience_types, movies.created_at, movies.updated_at, movies.poster_image_url,
+    coalesce(
+        (
+            SELECT
+                jsonb_agg(
+                    to_jsonb(st)
+                    ORDER BY
+                        st.start_date,
+                        st.start_time
+                )
+            FROM
+                show_times st
+            WHERE
+                st.movie_id = movies.id
+                AND st.end_date >= NOW()
+        ),
+        '[]'::jsonb
+    ) AS show_times
 FROM
     movies
-    LEFT JOIN show_times ON show_times.movie_id = movies.id
 WHERE
-    show_times.start_date >= NOW()
-    AND show_times.endtimes <= NOW()
-GROUP BY
-    movies.id
+    EXISTS (
+        SELECT
+            1
+        FROM
+            show_times st
+        WHERE
+            st.movie_id = movies.id
+            AND st.end_date >= NOW()
+    )
 ORDER BY
-    show_times.start_date
+    (
+        SELECT
+            MIN(st.start_date)
+        FROM
+            show_times st
+        WHERE
+            st.movie_id = movies.id
+            AND st.end_date >= NOW()
+    ) ASC
 `
 
-func (q *Queries) GetShowingMovies(ctx context.Context) ([]Movie, error) {
+type GetShowingMoviesRow struct {
+	ID              uuid.UUID         `json:"id"`
+	Name            string            `json:"name"`
+	Description     string            `json:"description"`
+	DurationInMins  int32             `json:"duration_in_mins"`
+	TrailerUrl      string            `json:"trailer_url"`
+	Genre           types.StringSlice `json:"genre"`
+	PgRating        string            `json:"pg_rating"`
+	ExperienceTypes types.StringSlice `json:"experience_types"`
+	CreatedAt       time.Time         `json:"created_at"`
+	UpdatedAt       time.Time         `json:"updated_at"`
+	PosterImageUrl  *string           `json:"poster_image_url"`
+	ShowTimes       interface{}       `json:"show_times"`
+}
+
+func (q *Queries) GetShowingMovies(ctx context.Context) ([]GetShowingMoviesRow, error) {
 	rows, err := q.db.Query(ctx, getShowingMovies)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Movie
+	var items []GetShowingMoviesRow
 	for rows.Next() {
-		var i Movie
+		var i GetShowingMoviesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
@@ -163,6 +208,7 @@ func (q *Queries) GetShowingMovies(ctx context.Context) ([]Movie, error) {
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.PosterImageUrl,
+			&i.ShowTimes,
 		); err != nil {
 			return nil, err
 		}
