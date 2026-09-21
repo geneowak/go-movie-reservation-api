@@ -224,6 +224,14 @@ WITH filtered_shows AS (
         show_times st
     WHERE
         st.end_date >= CURRENT_DATE
+        AND (
+            $2::time IS NULL
+            OR st.start_time >= $2
+        )
+        AND (
+            $3::timestamp IS NULL
+            OR st.start_date <= $3
+        )
     GROUP BY
         st.movie_id
 )
@@ -233,9 +241,20 @@ SELECT
 FROM
     movies
     INNER JOIN filtered_shows fs ON movies.id = fs.movie_id
+WHERE
+    (
+        $1::text IS NULL
+        OR movies.genre::jsonb @> jsonb_build_array($1::text)
+    )
 ORDER BY
     fs.first_show_date ASC
 `
+
+type GetShowingMoviesParams struct {
+	Genre *string    `json:"genre"`
+	Time  *time.Time `json:"time"`
+	Date  *time.Time `json:"date"`
+}
 
 type GetShowingMoviesRow struct {
 	ID              uuid.UUID         `json:"id"`
@@ -252,8 +271,8 @@ type GetShowingMoviesRow struct {
 	ShowTimes       json.RawMessage   `json:"show_times"`
 }
 
-func (q *Queries) GetShowingMovies(ctx context.Context) ([]GetShowingMoviesRow, error) {
-	rows, err := q.db.Query(ctx, getShowingMovies)
+func (q *Queries) GetShowingMovies(ctx context.Context, arg GetShowingMoviesParams) ([]GetShowingMoviesRow, error) {
+	rows, err := q.db.Query(ctx, getShowingMovies, arg.Genre, arg.Time, arg.Date)
 	if err != nil {
 		return nil, err
 	}

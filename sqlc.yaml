@@ -26,6 +26,12 @@ sql:
               type: Time
               pointer: true
           - db_type: "pg_catalog.time"
+            nullable: true
+            go_type:
+              import: "time"
+              type: Time
+              pointer: true
+          - db_type: "pg_catalog.time"
             go_type:
               import: "time"
               type: Time

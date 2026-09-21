@@ -30,7 +30,7 @@ ADMIN ROUTES
 - [ ] PUT /api/users/{userId} # assigning or removing admins
 
 USER ROUTES
-- [ ] GET /api/movies?genre={genre}&show-time={time}&date={date} (gets currently showing movies)
+- [x] GET /api/movies?genre={genre}&show-time={time}&date={date} (gets currently showing movies)
 - [ ] GET /api/movies/{movieId} ->movie with show-times
 - [ ] POST /api/seats/reserve -> reserve seats for 5mins while browsing
 - [ ] POST /api/seats/book -> confirm seat booking
