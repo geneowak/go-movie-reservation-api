@@ -46,3 +46,27 @@ SELECT
         WHERE
             id = $1
     );
+
+-- name: GetMovieDetails :one
+SELECT
+    movies.*,
+    COALESCE(
+        (
+            SELECT
+                jsonb_agg(
+                    to_jsonb(st)
+                    ORDER BY
+                        st.start_date,
+                        st.start_time
+                )
+            FROM
+                show_times st
+            WHERE
+                st.movie_id = movies.id
+        ),
+        '[]'::jsonb
+    ) AS show_times
+FROM
+    movies
+WHERE
+    movies.id = $1;

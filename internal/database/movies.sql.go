@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/geneowak/go-expense-tracker/internal/types"
 	"github.com/google/uuid"
@@ -123,6 +124,66 @@ func (q *Queries) GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.PosterImageUrl,
+	)
+	return i, err
+}
+
+const getMovieDetails = `-- name: GetMovieDetails :one
+SELECT
+    movies.id, movies.name, movies.description, movies.duration_in_mins, movies.trailer_url, movies.genre, movies.pg_rating, movies.experience_types, movies.created_at, movies.updated_at, movies.poster_image_url,
+    COALESCE(
+        (
+            SELECT
+                jsonb_agg(
+                    to_jsonb(st)
+                    ORDER BY
+                        st.start_date,
+                        st.start_time
+                )
+            FROM
+                show_times st
+            WHERE
+                st.movie_id = movies.id
+        ),
+        '[]'::jsonb
+    ) AS show_times
+FROM
+    movies
+WHERE
+    movies.id = $1
+`
+
+type GetMovieDetailsRow struct {
+	ID              uuid.UUID         `json:"id"`
+	Name            string            `json:"name"`
+	Description     string            `json:"description"`
+	DurationInMins  int32             `json:"duration_in_mins"`
+	TrailerUrl      string            `json:"trailer_url"`
+	Genre           types.StringSlice `json:"genre"`
+	PgRating        string            `json:"pg_rating"`
+	ExperienceTypes types.StringSlice `json:"experience_types"`
+	CreatedAt       time.Time         `json:"created_at"`
+	UpdatedAt       time.Time         `json:"updated_at"`
+	PosterImageUrl  *string           `json:"poster_image_url"`
+	ShowTimes       interface{}       `json:"show_times"`
+}
+
+func (q *Queries) GetMovieDetails(ctx context.Context, id uuid.UUID) (GetMovieDetailsRow, error) {
+	row := q.db.QueryRow(ctx, getMovieDetails, id)
+	var i GetMovieDetailsRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.DurationInMins,
+		&i.TrailerUrl,
+		&i.Genre,
+		&i.PgRating,
+		&i.ExperienceTypes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PosterImageUrl,
+		&i.ShowTimes,
 	)
 	return i, err
 }

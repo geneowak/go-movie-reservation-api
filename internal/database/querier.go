@@ -22,6 +22,7 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	GetAllMovies(ctx context.Context) ([]GetAllMoviesRow, error)
 	GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
+	GetMovieDetails(ctx context.Context, id uuid.UUID) (GetMovieDetailsRow, error)
 	GetRefreshToken(ctx context.Context, token string) (RefreshToken, error)
 	GetShowingMovies(ctx context.Context, arg GetShowingMoviesParams) ([]GetShowingMoviesRow, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
