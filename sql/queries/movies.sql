@@ -50,23 +50,21 @@ SELECT
 -- name: GetMovieDetails :one
 SELECT
     movies.*,
-    COALESCE(
-        (
-            SELECT
-                jsonb_agg(
-                    to_jsonb(st)
-                    ORDER BY
-                        st.start_date,
-                        st.start_time
-                )
-            FROM
-                show_times st
-            WHERE
-                st.movie_id = movies.id
-        ),
-        '[]'::jsonb
-    ) AS show_times
+    COALESCE(st_agg.show_times, '[]'::jsonb) AS show_times
 FROM
     movies
+    LEFT JOIN LATERAL(
+        SELECT
+            jsonb_agg(
+                to_jsonb(st)
+                ORDER BY
+                    st.start_date,
+                    st.start_time
+            ) AS show_times
+        FROM
+            show_times st
+        WHERE
+            st.movie_id = movies.id
+    ) st_agg ON TRUE
 WHERE
     movies.id = $1;

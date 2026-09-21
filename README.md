@@ -31,7 +31,7 @@ ADMIN ROUTES
 
 USER ROUTES
 - [x] GET /api/movies?genre={genre}&show-time={time}&date={date} (gets currently showing movies)
-- [ ] GET /api/movies/{movieId} ->movie with show-times
+- [x] GET /api/movies/{movieId} ->movie with show-times
 - [ ] POST /api/seats/reserve -> reserve seats for 5mins while browsing
 - [ ] POST /api/seats/book -> confirm seat booking
 - [ ] GET /api/bookings

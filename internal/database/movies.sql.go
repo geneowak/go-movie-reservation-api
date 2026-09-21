@@ -131,24 +131,22 @@ func (q *Queries) GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
 const getMovieDetails = `-- name: GetMovieDetails :one
 SELECT
     movies.id, movies.name, movies.description, movies.duration_in_mins, movies.trailer_url, movies.genre, movies.pg_rating, movies.experience_types, movies.created_at, movies.updated_at, movies.poster_image_url,
-    COALESCE(
-        (
-            SELECT
-                jsonb_agg(
-                    to_jsonb(st)
-                    ORDER BY
-                        st.start_date,
-                        st.start_time
-                )
-            FROM
-                show_times st
-            WHERE
-                st.movie_id = movies.id
-        ),
-        '[]'::jsonb
-    ) AS show_times
+    COALESCE(st_agg.show_times, '[]'::jsonb) AS show_times
 FROM
     movies
+    LEFT JOIN LATERAL(
+        SELECT
+            jsonb_agg(
+                to_jsonb(st)
+                ORDER BY
+                    st.start_date,
+                    st.start_time
+            ) AS show_times
+        FROM
+            show_times st
+        WHERE
+            st.movie_id = movies.id
+    ) st_agg ON TRUE
 WHERE
     movies.id = $1
 `
@@ -165,7 +163,7 @@ type GetMovieDetailsRow struct {
 	CreatedAt       time.Time         `json:"created_at"`
 	UpdatedAt       time.Time         `json:"updated_at"`
 	PosterImageUrl  *string           `json:"poster_image_url"`
-	ShowTimes       interface{}       `json:"show_times"`
+	ShowTimes       []byte            `json:"show_times"`
 }
 
 func (q *Queries) GetMovieDetails(ctx context.Context, id uuid.UUID) (GetMovieDetailsRow, error) {

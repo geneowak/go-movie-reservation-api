@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 
+	"github.com/geneowak/go-expense-tracker/internal/database"
 	"github.com/google/uuid"
 )
 
@@ -25,5 +27,14 @@ func (cfg *ApiConfig) handleGetMovieDetails(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, movie)
+	// using this work around to change the show_times to json.RawMessage because sqlc failed to override it from []byte
+	response := struct {
+		database.GetMovieDetailsRow
+		ShowTimes json.RawMessage `json:"show_times"`
+	}{
+		GetMovieDetailsRow: movie,
+		ShowTimes:          movie.ShowTimes,
+	}
+
+	respondWithJSON(w, http.StatusOK, response)
 }
