@@ -79,44 +79,28 @@ ORDER BY
     ) ASC;
 
 -- name: GetShowingMovies :many
+WITH filtered_shows AS (
+    SELECT
+        st.movie_id,
+        jsonb_agg(
+            to_jsonb(st)
+            ORDER BY
+                st.start_date,
+                st.start_time
+        ) AS show_times,
+        min(st.start_date) AS first_show_date
+    FROM
+        show_times st
+    WHERE
+        st.end_date >= CURRENT_DATE
+    GROUP BY
+        st.movie_id
+)
 SELECT
     movies.*,
-    coalesce(
-        (
-            SELECT
-                jsonb_agg(
-                    to_jsonb(st)
-                    ORDER BY
-                        st.start_date,
-                        st.start_time
-                )
-            FROM
-                show_times st
-            WHERE
-                st.movie_id = movies.id
-                AND st.end_date >= NOW()
-        ),
-        '[]'::jsonb
-    ) AS show_times
+    fs.show_times
 FROM
     movies
-WHERE
-    EXISTS (
-        SELECT
-            1
-        FROM
-            show_times st
-        WHERE
-            st.movie_id = movies.id
-            AND st.end_date >= NOW()
-    )
+    INNER JOIN filtered_shows fs ON movies.id = fs.movie_id
 ORDER BY
-    (
-        SELECT
-            MIN(st.start_date)
-        FROM
-            show_times st
-        WHERE
-            st.movie_id = movies.id
-            AND st.end_date >= NOW()
-    ) ASC;
+    fs.first_show_date ASC;

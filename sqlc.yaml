@@ -47,3 +47,5 @@ sql:
             go_type:
               import: "github.com/geneowak/go-expense-tracker/internal/types"
               type: "SeatMap"
+          - column: "filtered_shows.show_times"
+            go_type: "encoding/json.RawMessage"

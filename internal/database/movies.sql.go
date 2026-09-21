@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/geneowak/go-expense-tracker/internal/types"
@@ -209,47 +210,31 @@ func (q *Queries) GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
 }
 
 const getShowingMovies = `-- name: GetShowingMovies :many
+WITH filtered_shows AS (
+    SELECT
+        st.movie_id,
+        jsonb_agg(
+            to_jsonb(st)
+            ORDER BY
+                st.start_date,
+                st.start_time
+        ) AS show_times,
+        min(st.start_date) AS first_show_date
+    FROM
+        show_times st
+    WHERE
+        st.end_date >= CURRENT_DATE
+    GROUP BY
+        st.movie_id
+)
 SELECT
     movies.id, movies.name, movies.description, movies.duration_in_mins, movies.trailer_url, movies.genre, movies.pg_rating, movies.experience_types, movies.created_at, movies.updated_at, movies.poster_image_url,
-    coalesce(
-        (
-            SELECT
-                jsonb_agg(
-                    to_jsonb(st)
-                    ORDER BY
-                        st.start_date,
-                        st.start_time
-                )
-            FROM
-                show_times st
-            WHERE
-                st.movie_id = movies.id
-                AND st.end_date >= NOW()
-        ),
-        '[]'::jsonb
-    ) AS show_times
+    fs.show_times
 FROM
     movies
-WHERE
-    EXISTS (
-        SELECT
-            1
-        FROM
-            show_times st
-        WHERE
-            st.movie_id = movies.id
-            AND st.end_date >= NOW()
-    )
+    INNER JOIN filtered_shows fs ON movies.id = fs.movie_id
 ORDER BY
-    (
-        SELECT
-            MIN(st.start_date)
-        FROM
-            show_times st
-        WHERE
-            st.movie_id = movies.id
-            AND st.end_date >= NOW()
-    ) ASC
+    fs.first_show_date ASC
 `
 
 type GetShowingMoviesRow struct {
@@ -264,7 +249,7 @@ type GetShowingMoviesRow struct {
 	CreatedAt       time.Time         `json:"created_at"`
 	UpdatedAt       time.Time         `json:"updated_at"`
 	PosterImageUrl  *string           `json:"poster_image_url"`
-	ShowTimes       interface{}       `json:"show_times"`
+	ShowTimes       json.RawMessage   `json:"show_times"`
 }
 
 func (q *Queries) GetShowingMovies(ctx context.Context) ([]GetShowingMoviesRow, error) {
