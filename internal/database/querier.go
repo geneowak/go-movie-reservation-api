@@ -20,6 +20,7 @@ type Querier interface {
 	CreateRefreshToken(ctx context.Context, arg CreateRefreshTokenParams) (RefreshToken, error)
 	CreateShowTime(ctx context.Context, arg CreateShowTimeParams) (ShowTime, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	GetAllMovies(ctx context.Context) ([]GetAllMoviesRow, error)
 	GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
 	GetRefreshToken(ctx context.Context, token string) (RefreshToken, error)
 	GetShowingMovies(ctx context.Context) ([]GetShowingMoviesRow, error)

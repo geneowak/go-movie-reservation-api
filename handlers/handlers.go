@@ -17,12 +17,12 @@ func SetupServer(cfg *ApiConfig, filePathRoot, port string) *http.Server {
 
 	// Admin routes
 	mux.HandleFunc("POST /api/movies", cfg.middlewareAdminAuth(cfg.handleCreateMovie))
+	mux.HandleFunc("POST /api/movies/{movieId}/show-times", cfg.middlewareAdminAuth(cfg.handleCreateMovieShowTime))
+	mux.HandleFunc("GET /api/admin/movies", cfg.middlewareAdminAuth(cfg.handleAdminShowMovies))
 
 	mux.HandleFunc("POST /api/locations", cfg.middlewareAdminAuth(cfg.handleCreateLocation))
 
 	mux.HandleFunc("POST /api/cinemas", cfg.middlewareAdminAuth(cfg.handleCreateCinema))
-
-	mux.HandleFunc("POST /api/movies/{movieId}/show-times", cfg.middlewareAdminAuth(cfg.handleCreateMovieShowTime))
 
 	// user routes
 	mux.HandleFunc("GET /api/movies", cfg.middlewareAuth(cfg.handleGetMovies))

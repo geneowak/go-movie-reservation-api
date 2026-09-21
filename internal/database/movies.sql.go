@@ -100,6 +100,86 @@ func (q *Queries) CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie
 	return i, err
 }
 
+const getAllMovies = `-- name: GetAllMovies :many
+SELECT
+    movies.id, movies.name, movies.description, movies.duration_in_mins, movies.trailer_url, movies.genre, movies.pg_rating, movies.experience_types, movies.created_at, movies.updated_at, movies.poster_image_url,
+    COALESCE(
+        (
+            SELECT
+                jsonb_agg(
+                    to_jsonb(st)
+                    ORDER BY
+                        st.start_date,
+                        st.start_time
+                )
+            FROM
+                show_times st
+            WHERE
+                st.movie_id = movies.id
+        ),
+        '[]'::jsonb
+    ) AS show_times
+FROM
+    movies
+ORDER BY
+    (
+        SELECT
+            min(st.start_date)
+        FROM
+            show_times st
+        WHERE
+            st.movie_id = movies.id
+    ) ASC
+`
+
+type GetAllMoviesRow struct {
+	ID              uuid.UUID         `json:"id"`
+	Name            string            `json:"name"`
+	Description     string            `json:"description"`
+	DurationInMins  int32             `json:"duration_in_mins"`
+	TrailerUrl      string            `json:"trailer_url"`
+	Genre           types.StringSlice `json:"genre"`
+	PgRating        string            `json:"pg_rating"`
+	ExperienceTypes types.StringSlice `json:"experience_types"`
+	CreatedAt       time.Time         `json:"created_at"`
+	UpdatedAt       time.Time         `json:"updated_at"`
+	PosterImageUrl  *string           `json:"poster_image_url"`
+	ShowTimes       interface{}       `json:"show_times"`
+}
+
+func (q *Queries) GetAllMovies(ctx context.Context) ([]GetAllMoviesRow, error) {
+	rows, err := q.db.Query(ctx, getAllMovies)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllMoviesRow
+	for rows.Next() {
+		var i GetAllMoviesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.DurationInMins,
+			&i.TrailerUrl,
+			&i.Genre,
+			&i.PgRating,
+			&i.ExperienceTypes,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.PosterImageUrl,
+			&i.ShowTimes,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getMovieById = `-- name: GetMovieById :one
 SELECT
     id, name, description, duration_in_mins, trailer_url, genre, pg_rating, experience_types, created_at, updated_at, poster_image_url
