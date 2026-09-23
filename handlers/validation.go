@@ -23,6 +23,14 @@ func CreateValidator(cfg *ApiConfig) *validator.Validate {
 
 	// register custom validators
 	validate.RegisterValidation("cinema-exists", cfg.ValidateCinemaId)
+	validate.RegisterValidation("is-valid-seat", func(fl validator.FieldLevel) bool {
+		val := fl.Field().String()
+		// seat no needs to be in the format of Row:Seat eg A:1
+		if elements := strings.Split(val, ":"); len(elements) != 2 {
+			return false
+		}
+		return true
+	})
 
 	return validate
 }
@@ -62,6 +70,8 @@ func getErrorMsg(err validator.FieldError) string {
 		return fmt.Sprintf("The %s must be a valid email.", err.Field())
 	case "url":
 		return fmt.Sprintf("The %s must be a valid URL.", err.Field())
+	case "uuid_rfc4122", "uuid":
+		return fmt.Sprintf("The %s must be a valid UUID.", err.Field())
 	case "datetime":
 		return fmt.Sprintf("The %s must be a valid datetime of the format %s.", err.Field(), err.Param())
 	case "gtfield", "gtcsfield":
@@ -91,6 +101,8 @@ func getErrorMsg(err validator.FieldError) string {
 	// custom validator errors
 	case "cinema-exists":
 		return fmt.Sprintf("The %s field must be a valid ID of an existing cinema.", err.Field())
+	case "is-valid-seat":
+		return fmt.Sprintf("The %s field is not a valid cinema seat number. Expected format is Row:SeatNo eg A:1", err.Field())
 	default:
 		return err.Error()
 	}
