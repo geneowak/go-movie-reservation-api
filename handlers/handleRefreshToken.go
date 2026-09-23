@@ -17,7 +17,7 @@ func (cfg *ApiConfig) handleRefreshToken(w http.ResponseWriter, r *http.Request)
 
 	refreshToken, err := cfg.DB.GetRefreshToken(r.Context(), token)
 	if err != nil {
-		if strings.Contains(err.Error(), "no rows in result set") {
+		if strings.Contains(err.Error(), EmptyResultSet) {
 			respondWithError(w, http.StatusUnauthorized, "Invalid refresh token", err)
 			return
 		}

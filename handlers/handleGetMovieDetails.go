@@ -19,7 +19,7 @@ func (cfg *ApiConfig) handleGetMovieDetails(w http.ResponseWriter, r *http.Reque
 
 	movie, err := cfg.DB.GetMovieDetails(r.Context(), movieId)
 	if err != err {
-		if strings.Contains(err.Error(), "no rows in result set") {
+		if strings.Contains(err.Error(), EmptyResultSet) {
 			respondWithError(w, http.StatusNotFound, "Movie not found", err)
 			return
 		}

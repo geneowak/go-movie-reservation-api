@@ -36,7 +36,7 @@ func (cfg *ApiConfig) handleGetMovies(w http.ResponseWriter, r *http.Request) {
 		Date:  &dateQuery,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "no rows in result set") {
+		if strings.Contains(err.Error(), EmptyResultSet) {
 			respondWithError(w, http.StatusNotFound, "No showing movies at the moment", err)
 			return
 		}

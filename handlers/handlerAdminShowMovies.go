@@ -8,7 +8,7 @@ import (
 func (cfg *ApiConfig) handleAdminShowMovies(w http.ResponseWriter, r *http.Request) {
 	movies, err := cfg.DB.GetAllMovies(r.Context())
 	if err != nil {
-		if strings.Contains(err.Error(), "no rows in result set") {
+		if strings.Contains(err.Error(), EmptyResultSet) {
 			respondWithError(w, http.StatusNotFound, "No movies found.", err)
 			return
 		}
