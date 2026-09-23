@@ -18,6 +18,7 @@ type Querier interface {
 	CreateLocation(ctx context.Context, arg CreateLocationParams) (Location, error)
 	CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie, error)
 	CreateRefreshToken(ctx context.Context, arg CreateRefreshTokenParams) (RefreshToken, error)
+	CreateReservation(ctx context.Context, arg CreateReservationParams) (Reservation, error)
 	CreateShowTime(ctx context.Context, arg CreateShowTimeParams) (ShowTime, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	GetAllMovies(ctx context.Context) ([]GetAllMoviesRow, error)

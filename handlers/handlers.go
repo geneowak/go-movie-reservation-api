@@ -28,6 +28,8 @@ func SetupServer(cfg *ApiConfig, filePathRoot, port string) *http.Server {
 	mux.HandleFunc("GET /api/movies", cfg.middlewareAuth(cfg.handleGetMovies))
 	mux.HandleFunc("GET /api/movies/{movieId}", cfg.middlewareAuth(cfg.handleGetMovieDetails))
 
+	mux.HandleFunc("POST /api/seats/reserve", cfg.middlewareAuth(cfg.handleReserveSeat))
+
 	return &http.Server{
 		Addr:         ":" + port,
 		Handler:      mux,
