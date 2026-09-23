@@ -4,12 +4,12 @@ INSERT INTO
         id,
         show_time_id,
         user_id,
-        seat,
+        seat_no,
         reserved_at,
         created_at,
         updated_at
     )
 VALUES
-(uuidv7(), $1, $2, $3, NOW(), NOW(), NOW())
+    (uuidv7(), $1, $2, $3, NOW(), NOW(), NOW())
 RETURNING
     *;

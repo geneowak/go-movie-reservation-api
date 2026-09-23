@@ -31,15 +31,9 @@ RETURNING
 -- name: GetShowTimeDetails :one
 SELECT
     show_times.*,
-    (
-        SELECT
-            jsonb_agg(to_jsonb(c))
-        FROM
-            cinemas c
-        WHERE
-            c.id = show_times.cinema_id
-    ) AS cinema
+    to_jsonb(c.*) AS cinema
 FROM
     show_times
+    INNER JOIN cinemas c ON c.id = show_times.cinema_id
 WHERE
     show_times.id = $1;

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -54,7 +53,7 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 	}
 	// we'll get the cinema of the show time and validate that the seat no exists
 	var cinema database.Cinema
-	if err := json.NewDecoder(bytes.NewBuffer(showTime.Cinema)).Decode(&cinema); err != nil {
+	if err := json.Unmarshal(showTime.Cinema, &cinema); err != nil {
 		respondWithError(w, http.StatusInternalServerError, "failed to get cinema details", err)
 		return
 	}
@@ -67,7 +66,7 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 	seatReserved, err := cfg.DB.CreateReservation(r.Context(), database.CreateReservationParams{
 		ShowTimeID: showTime.ID,
 		UserID:     userId,
-		Seat:       req.SeatNo,
+		SeatNo:     req.SeatNo,
 	})
 
 	respondWithJSON(w, http.StatusCreated, seatReserved)

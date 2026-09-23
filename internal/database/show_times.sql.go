@@ -84,16 +84,10 @@ func (q *Queries) CreateShowTime(ctx context.Context, arg CreateShowTimeParams) 
 const getShowTimeDetails = `-- name: GetShowTimeDetails :one
 SELECT
     show_times.id, show_times.start_time, show_times.price, show_times.description, show_times.price_currency, show_times.movie_id, show_times.cinema_id, show_times.experience_type, show_times.start_date, show_times.end_date, show_times.created_at, show_times.updated_at,
-    (
-        SELECT
-            jsonb_agg(to_jsonb(c))
-        FROM
-            cinemas c
-        WHERE
-            c.id = show_times.cinema_id
-    ) AS cinema
+    to_jsonb(c.*) AS cinema
 FROM
     show_times
+    INNER JOIN cinemas c ON c.id = show_times.cinema_id
 WHERE
     show_times.id = $1
 `

@@ -17,31 +17,31 @@ INSERT INTO
         id,
         show_time_id,
         user_id,
-        seat,
+        seat_no,
         reserved_at,
         created_at,
         updated_at
     )
 VALUES
-(uuidv7(), $1, $2, $3, NOW(), NOW(), NOW())
+    (uuidv7(), $1, $2, $3, NOW(), NOW(), NOW())
 RETURNING
-    id, show_time_id, user_id, seat, status, reserved_at, created_at, updated_at
+    id, show_time_id, user_id, seat_no, status, reserved_at, created_at, updated_at
 `
 
 type CreateReservationParams struct {
 	ShowTimeID uuid.UUID `json:"show_time_id"`
 	UserID     uuid.UUID `json:"user_id"`
-	Seat       string    `json:"seat"`
+	SeatNo     string    `json:"seat_no"`
 }
 
 func (q *Queries) CreateReservation(ctx context.Context, arg CreateReservationParams) (Reservation, error) {
-	row := q.db.QueryRow(ctx, createReservation, arg.ShowTimeID, arg.UserID, arg.Seat)
+	row := q.db.QueryRow(ctx, createReservation, arg.ShowTimeID, arg.UserID, arg.SeatNo)
 	var i Reservation
 	err := row.Scan(
 		&i.ID,
 		&i.ShowTimeID,
 		&i.UserID,
-		&i.Seat,
+		&i.SeatNo,
 		&i.Status,
 		&i.ReservedAt,
 		&i.CreatedAt,

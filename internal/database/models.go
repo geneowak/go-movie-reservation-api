@@ -57,7 +57,7 @@ type Reservation struct {
 	ID         uuid.UUID  `json:"id"`
 	ShowTimeID uuid.UUID  `json:"show_time_id"`
 	UserID     uuid.UUID  `json:"user_id"`
-	Seat       string     `json:"seat"`
+	SeatNo     string     `json:"seat_no"`
 	Status     string     `json:"status"`
 	ReservedAt *time.Time `json:"reserved_at"`
 	CreatedAt  time.Time  `json:"created_at"`
