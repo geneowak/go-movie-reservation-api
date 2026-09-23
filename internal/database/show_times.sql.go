@@ -80,3 +80,57 @@ func (q *Queries) CreateShowTime(ctx context.Context, arg CreateShowTimeParams) 
 	)
 	return i, err
 }
+
+const getShowTimeDetails = `-- name: GetShowTimeDetails :one
+SELECT
+    show_times.id, show_times.start_time, show_times.price, show_times.description, show_times.price_currency, show_times.movie_id, show_times.cinema_id, show_times.experience_type, show_times.start_date, show_times.end_date, show_times.created_at, show_times.updated_at,
+    (
+        SELECT
+            jsonb_agg(to_jsonb(c))
+        FROM
+            cinemas c
+        WHERE
+            c.id = show_times.cinema_id
+    ) AS cinema
+FROM
+    show_times
+WHERE
+    show_times.id = $1
+`
+
+type GetShowTimeDetailsRow struct {
+	ID             uuid.UUID `json:"id"`
+	StartTime      time.Time `json:"start_time"`
+	Price          int32     `json:"price"`
+	Description    *string   `json:"description"`
+	PriceCurrency  string    `json:"price_currency"`
+	MovieID        uuid.UUID `json:"movie_id"`
+	CinemaID       uuid.UUID `json:"cinema_id"`
+	ExperienceType string    `json:"experience_type"`
+	StartDate      time.Time `json:"start_date"`
+	EndDate        time.Time `json:"end_date"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	Cinema         []byte    `json:"cinema"`
+}
+
+func (q *Queries) GetShowTimeDetails(ctx context.Context, id uuid.UUID) (GetShowTimeDetailsRow, error) {
+	row := q.db.QueryRow(ctx, getShowTimeDetails, id)
+	var i GetShowTimeDetailsRow
+	err := row.Scan(
+		&i.ID,
+		&i.StartTime,
+		&i.Price,
+		&i.Description,
+		&i.PriceCurrency,
+		&i.MovieID,
+		&i.CinemaID,
+		&i.ExperienceType,
+		&i.StartDate,
+		&i.EndDate,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Cinema,
+	)
+	return i, err
+}
