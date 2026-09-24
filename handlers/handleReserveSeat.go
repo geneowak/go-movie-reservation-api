@@ -58,7 +58,7 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 	// TODO: Validate the seat number
 	isValidSeat := validateSeatNo(req, results.Cinema)
 	if !isValidSeat {
-		respondWithError(w, http.StatusBadRequest, "Invalid seat number", errors.New("Seat number does not exist in show time cinema"))
+		throwAsValidationError(w, "seat", "Seat number does not exist in show time cinema")
 		return
 	}
 

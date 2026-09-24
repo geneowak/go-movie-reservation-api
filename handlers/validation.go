@@ -68,6 +68,20 @@ func handleValidationErrors(w http.ResponseWriter, err error) {
 	})
 }
 
+func throwAsValidationError(w http.ResponseWriter, field, errMsg string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusUnprocessableEntity) // 422 matches Laravel's default
+
+	errorsMap := map[string][]string{
+		field: {errMsg},
+	}
+
+	json.NewEncoder(w).Encode(map[string]any{
+		"message": "There were some validation errors",
+		"errors":  errorsMap,
+	})
+}
+
 func getErrorMsg(err validator.FieldError) string {
 	switch err.Tag() {
 	case "required":
