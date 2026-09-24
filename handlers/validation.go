@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -26,7 +27,12 @@ func CreateValidator(cfg *ApiConfig) *validator.Validate {
 	validate.RegisterValidation("is-valid-seat", func(fl validator.FieldLevel) bool {
 		val := fl.Field().String()
 		// seat no needs to be in the format of Row:Seat eg A:1
-		if elements := strings.Split(val, ":"); len(elements) != 2 {
+		elements := strings.Split(val, ":")
+		if len(elements) != 2 {
+			return false
+		}
+		// the second element must be a number
+		if _, err := strconv.Atoi(elements[1]); err != nil {
 			return false
 		}
 		return true
