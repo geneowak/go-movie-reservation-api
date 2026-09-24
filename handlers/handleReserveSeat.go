@@ -39,24 +39,22 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 	ShowTimeId, _ := uuid.Parse(req.ShowTimeId)
 
 	// let's first ensure that the show time is valid and that it is not a past event
-	showTime, err := cfg.DB.GetShowTimeDetails(r.Context(), ShowTimeId)
+	results, err := cfg.DB.GetShowTimeDetails(r.Context(), ShowTimeId)
 	if err != nil {
 		if strings.Contains(err.Error(), EmptyResultSet) {
 			respondWithError(w, http.StatusNotFound, "Show time not found", err)
 			return
 		}
 		respondWithError(w, http.StatusInternalServerError, "Error fetching show time details", err)
+		return
 	}
+	showTime := results.ShowTime
 	if showTime.EndDate.Before(time.Now().UTC()) {
 		respondWithError(w, http.StatusBadRequest, "Show time has already ended", err)
 		return
 	}
 	// we'll get the cinema of the show time and validate that the seat no exists
-	var cinema database.Cinema
-	if err := json.Unmarshal(showTime.Cinema, &cinema); err != nil {
-		respondWithError(w, http.StatusInternalServerError, "failed to get cinema details", err)
-		return
-	}
+	cinema := results.Cinema
 	log.Println("got cinema: ", cinema)
 	// TODO: Validate the seat number
 
@@ -68,6 +66,8 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 		UserID:     userId,
 		SeatNo:     req.SeatNo,
 	})
+
+	log.Println("seat reserved:", seatReserved)
 
 	respondWithJSON(w, http.StatusCreated, seatReserved)
 }

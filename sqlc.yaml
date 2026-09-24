@@ -55,5 +55,3 @@ sql:
               type: "SeatMap"
           - column: "filtered_shows.show_times"
             go_type: "encoding/json.RawMessage"
-          - column: "GetShowTimeDetails.cinema"
-            go_type: "encoding/json.RawMessage"

@@ -84,7 +84,7 @@ func (q *Queries) CreateShowTime(ctx context.Context, arg CreateShowTimeParams) 
 const getShowTimeDetails = `-- name: GetShowTimeDetails :one
 SELECT
     show_times.id, show_times.start_time, show_times.price, show_times.description, show_times.price_currency, show_times.movie_id, show_times.cinema_id, show_times.experience_type, show_times.start_date, show_times.end_date, show_times.created_at, show_times.updated_at,
-    to_jsonb(c.*) AS cinema
+    c.id, c.location_id, c.name, c.experience_types, c.seat_map, c.created_at, c.updated_at
 FROM
     show_times
     INNER JOIN cinemas c ON c.id = show_times.cinema_id
@@ -93,38 +93,33 @@ WHERE
 `
 
 type GetShowTimeDetailsRow struct {
-	ID             uuid.UUID `json:"id"`
-	StartTime      time.Time `json:"start_time"`
-	Price          int32     `json:"price"`
-	Description    *string   `json:"description"`
-	PriceCurrency  string    `json:"price_currency"`
-	MovieID        uuid.UUID `json:"movie_id"`
-	CinemaID       uuid.UUID `json:"cinema_id"`
-	ExperienceType string    `json:"experience_type"`
-	StartDate      time.Time `json:"start_date"`
-	EndDate        time.Time `json:"end_date"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
-	Cinema         []byte    `json:"cinema"`
+	ShowTime ShowTime `json:"show_time"`
+	Cinema   Cinema   `json:"cinema"`
 }
 
 func (q *Queries) GetShowTimeDetails(ctx context.Context, id uuid.UUID) (GetShowTimeDetailsRow, error) {
 	row := q.db.QueryRow(ctx, getShowTimeDetails, id)
 	var i GetShowTimeDetailsRow
 	err := row.Scan(
-		&i.ID,
-		&i.StartTime,
-		&i.Price,
-		&i.Description,
-		&i.PriceCurrency,
-		&i.MovieID,
-		&i.CinemaID,
-		&i.ExperienceType,
-		&i.StartDate,
-		&i.EndDate,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.Cinema,
+		&i.ShowTime.ID,
+		&i.ShowTime.StartTime,
+		&i.ShowTime.Price,
+		&i.ShowTime.Description,
+		&i.ShowTime.PriceCurrency,
+		&i.ShowTime.MovieID,
+		&i.ShowTime.CinemaID,
+		&i.ShowTime.ExperienceType,
+		&i.ShowTime.StartDate,
+		&i.ShowTime.EndDate,
+		&i.ShowTime.CreatedAt,
+		&i.ShowTime.UpdatedAt,
+		&i.Cinema.ID,
+		&i.Cinema.LocationID,
+		&i.Cinema.Name,
+		&i.Cinema.ExperienceTypes,
+		&i.Cinema.SeatMap,
+		&i.Cinema.CreatedAt,
+		&i.Cinema.UpdatedAt,
 	)
 	return i, err
 }

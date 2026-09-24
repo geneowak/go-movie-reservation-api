@@ -30,8 +30,8 @@ RETURNING
 
 -- name: GetShowTimeDetails :one
 SELECT
-    show_times.*,
-    to_jsonb(c.*) AS cinema
+    sqlc.embed(show_times),
+    sqlc.embed(c)
 FROM
     show_times
     INNER JOIN cinemas c ON c.id = show_times.cinema_id
