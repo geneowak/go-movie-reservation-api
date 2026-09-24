@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/geneowak/go-expense-tracker/internal/database"
 	"github.com/google/uuid"
@@ -21,7 +20,7 @@ func (cfg *ApiConfig) handleGetMovieDetails(w http.ResponseWriter, r *http.Reque
 
 	movie, err := cfg.DB.GetMovieDetails(r.Context(), movieId)
 	if err != err {
-		if errors.Is(err, pgx.ErrNoRows)   {
+		if errors.Is(err, pgx.ErrNoRows)
 			respondWithError(w, http.StatusNotFound, "Movie not found", err)
 			return
 		}

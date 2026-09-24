@@ -3,7 +3,6 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/geneowak/go-expense-tracker/internal/database"
@@ -38,7 +37,7 @@ func (cfg *ApiConfig) handleGetMovies(w http.ResponseWriter, r *http.Request) {
 		Date:  &dateQuery,
 	})
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows)  {
+		if errors.Is(err, pgx.ErrNoRows) {
 			respondWithError(w, http.StatusNotFound, "No showing movies at the moment", err)
 			return
 		}
