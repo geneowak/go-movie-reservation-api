@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 )
 
 type reserveSeatRequest struct {
-	SeatNo     string `json:"seat_no" validate:"required,is-valid-seat"`
+	Seat       string `json:"seat" validate:"required,is-valid-seat"`
 	ShowTimeId string `json:"show_time_id" validate:"required,uuid_rfc4122"`
 }
 
@@ -54,9 +55,12 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	// we'll get the cinema of the show time and validate that the seat no exists
-	cinema := results.Cinema
-	log.Println("got cinema: ", cinema)
 	// TODO: Validate the seat number
+	isValidSeat := validateSeatNo(req, results.Cinema)
+	if !isValidSeat {
+		respondWithError(w, http.StatusBadRequest, "Invalid seat number", errors.New("Seat number does not exist in show time cinema"))
+		return
+	}
 
 	// don't expect this to have an error since this handler is wrapped with the auth middleware
 	userId, _ := UserIdFromContext(r.Context())
@@ -64,7 +68,7 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 	seatReserved, err := cfg.DB.CreateReservation(r.Context(), database.CreateReservationParams{
 		ShowTimeID: showTime.ID,
 		UserID:     userId,
-		SeatNo:     req.SeatNo,
+		SeatNo:     req.Seat,
 	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error researving seat number", err)
@@ -74,4 +78,28 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 	log.Println("seat reserved:", seatReserved)
 
 	respondWithJSON(w, http.StatusCreated, seatReserved)
+}
+
+func validateSeatNo(req reserveSeatRequest, cinema database.Cinema) bool {
+	// we have already validated that it must return only 2 items
+	vals := strings.Split(req.Seat, ":")
+	seatRow := vals[0]
+	// this has already been validated so we are sure it will yield an int
+	seatNo, _ := strconv.Atoi(vals[1])
+	for _, row := range cinema.SeatMap.Rows {
+		// if rows don't match then we continue
+		if !strings.EqualFold(row.Row, seatRow) {
+			continue
+		}
+		for _, seats := range row.Seats {
+			if seats.Number == seatNo {
+				// got a match so we exit early
+				return true
+			}
+		}
+		// row matched but seat was wrong so we exit from here
+		return false
+	}
+
+	return false
 }
