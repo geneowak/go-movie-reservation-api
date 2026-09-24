@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -108,8 +107,6 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 		respondWithError(w, http.StatusInternalServerError, "Error researving seat number", err)
 		return
 	}
-
-	log.Println("seat reservation updated successfully", seatReserved)
 
 	respondWithJSON(w, http.StatusCreated, seatReserved)
 }
