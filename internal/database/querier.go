@@ -30,6 +30,7 @@ type Querier interface {
 	GetShowingMovies(ctx context.Context, arg GetShowingMoviesParams) ([]GetShowingMoviesRow, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserById(ctx context.Context, id uuid.UUID) (User, error)
+	MarkReservationBooked(ctx context.Context, arg MarkReservationBookedParams) (Reservation, error)
 	RevokeRefreshToken(ctx context.Context, token string) error
 	UpdateReservation(ctx context.Context, arg UpdateReservationParams) (Reservation, error)
 }

@@ -36,3 +36,15 @@ WHERE
     AND show_time_id = $3
 RETURNING
     *;
+
+-- name: MarkReservationBooked :one
+UPDATE
+    reservations
+SET
+    STATUS = 'booked',
+    reserved_at = NULL
+WHERE
+    id = $1
+    AND user_id = $2
+RETURNING
+    *;

@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -31,4 +33,14 @@ func respondWithJSON(w http.ResponseWriter, code int, payload any) {
 	}
 	w.WriteHeader(code)
 	w.Write(data)
+}
+
+func handleJsonDecodeError(w http.ResponseWriter, err error) {
+	if typeErr, ok := errors.AsType[*json.UnmarshalTypeError](err); ok {
+		msg := fmt.Sprintf("Invalid field %s: Expected type %s, but got %s", typeErr.Field, typeErr.Type.String(), typeErr.Value)
+		throwAsValidationError(w, typeErr.Field, msg)
+		return
+	}
+	respondWithError(w, http.StatusBadRequest, "Invalid request body", err)
+	return
 }

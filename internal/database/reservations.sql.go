@@ -83,6 +83,40 @@ func (q *Queries) GetReservationBySeatNo(ctx context.Context, arg GetReservation
 	return i, err
 }
 
+const markReservationBooked = `-- name: MarkReservationBooked :one
+UPDATE
+    reservations
+SET
+    STATUS = 'booked',
+    reserved_at = NULL
+WHERE
+    id = $1
+    AND user_id = $2
+RETURNING
+    id, show_time_id, user_id, seat_no, status, reserved_at, created_at, updated_at
+`
+
+type MarkReservationBookedParams struct {
+	ID     uuid.UUID `json:"id"`
+	UserID uuid.UUID `json:"user_id"`
+}
+
+func (q *Queries) MarkReservationBooked(ctx context.Context, arg MarkReservationBookedParams) (Reservation, error) {
+	row := q.db.QueryRow(ctx, markReservationBooked, arg.ID, arg.UserID)
+	var i Reservation
+	err := row.Scan(
+		&i.ID,
+		&i.ShowTimeID,
+		&i.UserID,
+		&i.SeatNo,
+		&i.Status,
+		&i.ReservedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateReservation = `-- name: UpdateReservation :one
 UPDATE
     reservations
