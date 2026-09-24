@@ -32,7 +32,7 @@ ADMIN ROUTES
 USER ROUTES
 - [x] GET /api/movies?genre={genre}&show-time={time}&date={date} (gets currently showing movies)
 - [x] GET /api/movies/{movieId} ->movie with show-times
-- [ ] POST /api/seats/reserve -> reserve seats for 5mins while browsing
+- [x] POST /api/seats/reserve -> reserve seats for 5mins while browsing
 - [ ] POST /api/seats/book -> confirm seat booking
 - [ ] GET /api/bookings
 - [ ] PUT /api/bookings/{bookingId} -> user can add/remove seats they have booked
