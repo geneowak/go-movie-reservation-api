@@ -59,6 +59,26 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 		throwAsValidationError(w, "seat", "Seat number does not exist in show time cinema")
 		return
 	}
+	// next is to validate if the seat has already been reserved or booked
+	existingBooking, err := cfg.DB.GetReservationBySeatNo(r.Context(), database.GetReservationBySeatNoParams{
+		ShowTimeID: showTime.ID,
+		SeatNo:     req.Seat,
+	})
+	if err != nil {
+		if !strings.Contains(err.Error(), EmptyResultSet) {
+			respondWithError(w, http.StatusInternalServerError, "Failed to validate reservation", err)
+			return
+		}
+	} else {
+		if existingBooking.Status == "booked" {
+			throwAsValidationError(w, "seat", "Seat number has already been booked")
+			return
+		}
+		if existingBooking.ReservedAt != nil && time.Since(*existingBooking.ReservedAt) < 10*time.Minute {
+			throwAsValidationError(w, "seat", "Seat number is currently reserved.")
+			return
+		}
+	}
 
 	// don't expect this to have an error since this handler is wrapped with the auth middleware
 	userId, _ := UserIdFromContext(r.Context())

@@ -25,6 +25,7 @@ type Querier interface {
 	GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
 	GetMovieDetails(ctx context.Context, id uuid.UUID) (GetMovieDetailsRow, error)
 	GetRefreshToken(ctx context.Context, token string) (RefreshToken, error)
+	GetReservationBySeatNo(ctx context.Context, arg GetReservationBySeatNoParams) (Reservation, error)
 	GetShowTimeDetails(ctx context.Context, id uuid.UUID) (GetShowTimeDetailsRow, error)
 	GetShowingMovies(ctx context.Context, arg GetShowingMoviesParams) ([]GetShowingMoviesRow, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)

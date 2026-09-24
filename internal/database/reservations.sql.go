@@ -49,3 +49,36 @@ func (q *Queries) CreateReservation(ctx context.Context, arg CreateReservationPa
 	)
 	return i, err
 }
+
+const getReservationBySeatNo = `-- name: GetReservationBySeatNo :one
+SELECT
+    id, show_time_id, user_id, seat_no, status, reserved_at, created_at, updated_at
+FROM
+    reservations
+WHERE
+    show_time_id = $1
+    AND seat_no = $2
+LIMIT
+    1
+`
+
+type GetReservationBySeatNoParams struct {
+	ShowTimeID uuid.UUID `json:"show_time_id"`
+	SeatNo     string    `json:"seat_no"`
+}
+
+func (q *Queries) GetReservationBySeatNo(ctx context.Context, arg GetReservationBySeatNoParams) (Reservation, error) {
+	row := q.db.QueryRow(ctx, getReservationBySeatNo, arg.ShowTimeID, arg.SeatNo)
+	var i Reservation
+	err := row.Scan(
+		&i.ID,
+		&i.ShowTimeID,
+		&i.UserID,
+		&i.SeatNo,
+		&i.Status,
+		&i.ReservedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
