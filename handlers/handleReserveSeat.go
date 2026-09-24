@@ -66,6 +66,10 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 		UserID:     userId,
 		SeatNo:     req.SeatNo,
 	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error researving seat number", err)
+		return
+	}
 
 	log.Println("seat reserved:", seatReserved)
 
