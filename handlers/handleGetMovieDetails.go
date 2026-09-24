@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 
 	"github.com/geneowak/go-expense-tracker/internal/database"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 func (cfg *ApiConfig) handleGetMovieDetails(w http.ResponseWriter, r *http.Request) {
@@ -19,7 +21,7 @@ func (cfg *ApiConfig) handleGetMovieDetails(w http.ResponseWriter, r *http.Reque
 
 	movie, err := cfg.DB.GetMovieDetails(r.Context(), movieId)
 	if err != err {
-		if strings.Contains(err.Error(), EmptyResultSet) {
+		if errors.Is(err, pgx.ErrNoRows)   {
 			respondWithError(w, http.StatusNotFound, "Movie not found", err)
 			return
 		}

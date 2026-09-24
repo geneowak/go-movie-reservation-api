@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/geneowak/go-expense-tracker/internal/database"
+	"github.com/jackc/pgx/v5"
 )
 
 func (cfg *ApiConfig) handleGetMovies(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +38,7 @@ func (cfg *ApiConfig) handleGetMovies(w http.ResponseWriter, r *http.Request) {
 		Date:  &dateQuery,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), EmptyResultSet) {
+		if errors.Is(err, pgx.ErrNoRows)  {
 			respondWithError(w, http.StatusNotFound, "No showing movies at the moment", err)
 			return
 		}

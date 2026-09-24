@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/geneowak/go-expense-tracker/internal/auth"
+	"github.com/jackc/pgx/v5"
 )
 
 func (cfg *ApiConfig) handleRefreshToken(w http.ResponseWriter, r *http.Request) {
@@ -17,7 +19,7 @@ func (cfg *ApiConfig) handleRefreshToken(w http.ResponseWriter, r *http.Request)
 
 	refreshToken, err := cfg.DB.GetRefreshToken(r.Context(), token)
 	if err != nil {
-		if strings.Contains(err.Error(), EmptyResultSet) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			respondWithError(w, http.StatusUnauthorized, "Invalid refresh token", err)
 			return
 		}

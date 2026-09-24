@@ -1,14 +1,17 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strings"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func (cfg *ApiConfig) handleAdminShowMovies(w http.ResponseWriter, r *http.Request) {
 	movies, err := cfg.DB.GetAllMovies(r.Context())
 	if err != nil {
-		if strings.Contains(err.Error(), EmptyResultSet) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			respondWithError(w, http.StatusNotFound, "No movies found.", err)
 			return
 		}

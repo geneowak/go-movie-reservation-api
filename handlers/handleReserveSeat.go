@@ -11,6 +11,7 @@ import (
 
 	"github.com/geneowak/go-expense-tracker/internal/database"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type reserveSeatRequest struct {
@@ -41,7 +42,7 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 	// let's first ensure that the show time is valid and that it is not a past event
 	results, err := cfg.DB.GetShowTimeDetails(r.Context(), ShowTimeId)
 	if err != nil {
-		if strings.Contains(err.Error(), EmptyResultSet) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			respondWithError(w, http.StatusNotFound, "Show time not found", err)
 			return
 		}
@@ -68,7 +69,7 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 		SeatNo:     req.Seat,
 	})
 	if err != nil {
-		if !strings.Contains(err.Error(), EmptyResultSet) {
+		if !errors.Is(err, pgx.ErrNoRows) {
 			respondWithError(w, http.StatusInternalServerError, "Failed to validate reservation", err)
 			return
 		}
