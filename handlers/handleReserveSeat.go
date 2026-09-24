@@ -59,6 +59,10 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 		throwAsValidationError(w, "seat", "Seat number does not exist in show time cinema")
 		return
 	}
+
+	// don't expect this to have an error since this handler is wrapped with the auth middleware
+	userId, _ := UserIdFromContext(r.Context())
+
 	// next is to validate if the seat has already been reserved or booked
 	existingBooking, err := cfg.DB.GetReservationBySeatNo(r.Context(), database.GetReservationBySeatNoParams{
 		ShowTimeID: showTime.ID,
@@ -74,14 +78,26 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 			throwAsValidationError(w, "seat", "Seat number has already been booked")
 			return
 		}
+		// user is only allowed to reserve a seat for 10 mins
 		if existingBooking.ReservedAt != nil && time.Since(*existingBooking.ReservedAt) < 10*time.Minute {
 			throwAsValidationError(w, "seat", "Seat number is currently reserved.")
 			return
 		}
-	}
 
-	// don't expect this to have an error since this handler is wrapped with the auth middleware
-	userId, _ := UserIdFromContext(r.Context())
+		// reaching here means that the seat was reserved before but has gone stale i.e 10 mins have already passed
+		updatedReservation, err := cfg.DB.UpdateReservation(r.Context(), database.UpdateReservationParams{
+			ShowTimeID: showTime.ID,
+			UserID:     userId,
+			SeatNo:     req.Seat,
+		})
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Error updating seat reservation", err)
+			return
+		}
+
+		respondWithJSON(w, http.StatusCreated, updatedReservation)
+		return
+	}
 	// then we'll reserve the seat
 	seatReserved, err := cfg.DB.CreateReservation(r.Context(), database.CreateReservationParams{
 		ShowTimeID: showTime.ID,
@@ -93,7 +109,7 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	log.Println("seat reserved:", seatReserved)
+	log.Println("seat reservation updated successfully", seatReserved)
 
 	respondWithJSON(w, http.StatusCreated, seatReserved)
 }

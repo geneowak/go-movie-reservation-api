@@ -15,9 +15,9 @@ const createReservation = `-- name: CreateReservation :one
 INSERT INTO
     reservations(
         id,
-        show_time_id,
         user_id,
         seat_no,
+        show_time_id,
         reserved_at,
         created_at,
         updated_at
@@ -29,13 +29,13 @@ RETURNING
 `
 
 type CreateReservationParams struct {
-	ShowTimeID uuid.UUID `json:"show_time_id"`
 	UserID     uuid.UUID `json:"user_id"`
 	SeatNo     string    `json:"seat_no"`
+	ShowTimeID uuid.UUID `json:"show_time_id"`
 }
 
 func (q *Queries) CreateReservation(ctx context.Context, arg CreateReservationParams) (Reservation, error) {
-	row := q.db.QueryRow(ctx, createReservation, arg.ShowTimeID, arg.UserID, arg.SeatNo)
+	row := q.db.QueryRow(ctx, createReservation, arg.UserID, arg.SeatNo, arg.ShowTimeID)
 	var i Reservation
 	err := row.Scan(
 		&i.ID,
@@ -69,6 +69,41 @@ type GetReservationBySeatNoParams struct {
 
 func (q *Queries) GetReservationBySeatNo(ctx context.Context, arg GetReservationBySeatNoParams) (Reservation, error) {
 	row := q.db.QueryRow(ctx, getReservationBySeatNo, arg.ShowTimeID, arg.SeatNo)
+	var i Reservation
+	err := row.Scan(
+		&i.ID,
+		&i.ShowTimeID,
+		&i.UserID,
+		&i.SeatNo,
+		&i.Status,
+		&i.ReservedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateReservation = `-- name: UpdateReservation :one
+UPDATE
+    reservations
+SET
+    user_id = $1,
+    reserved_at = NOW()
+WHERE
+    seat_no = $2
+    AND show_time_id = $3
+RETURNING
+    id, show_time_id, user_id, seat_no, status, reserved_at, created_at, updated_at
+`
+
+type UpdateReservationParams struct {
+	UserID     uuid.UUID `json:"user_id"`
+	SeatNo     string    `json:"seat_no"`
+	ShowTimeID uuid.UUID `json:"show_time_id"`
+}
+
+func (q *Queries) UpdateReservation(ctx context.Context, arg UpdateReservationParams) (Reservation, error) {
+	row := q.db.QueryRow(ctx, updateReservation, arg.UserID, arg.SeatNo, arg.ShowTimeID)
 	var i Reservation
 	err := row.Scan(
 		&i.ID,

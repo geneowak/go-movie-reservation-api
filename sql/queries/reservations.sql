@@ -2,9 +2,9 @@
 INSERT INTO
     reservations(
         id,
-        show_time_id,
         user_id,
         seat_no,
+        show_time_id,
         reserved_at,
         created_at,
         updated_at
@@ -24,3 +24,15 @@ WHERE
     AND seat_no = $2
 LIMIT
     1;
+
+-- name: UpdateReservation :one
+UPDATE
+    reservations
+SET
+    user_id = $1,
+    reserved_at = NOW()
+WHERE
+    seat_no = $2
+    AND show_time_id = $3
+RETURNING
+    *;

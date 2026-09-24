@@ -31,6 +31,7 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserById(ctx context.Context, id uuid.UUID) (User, error)
 	RevokeRefreshToken(ctx context.Context, token string) error
+	UpdateReservation(ctx context.Context, arg UpdateReservationParams) (Reservation, error)
 }
 
 var _ Querier = (*Queries)(nil)
