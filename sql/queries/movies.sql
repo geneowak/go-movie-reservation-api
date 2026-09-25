@@ -107,3 +107,9 @@ FROM
     ) st_agg ON TRUE
 WHERE
     movies.id = $1;
+
+-- name: DeleteMovie :exec
+DELETE FROM
+    movies
+WHERE
+    id = $1;

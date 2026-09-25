@@ -74,10 +74,6 @@ func (cfg *ApiConfig) handleUpdateMovieDetails(w http.ResponseWriter, r *http.Re
 	})
 
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			respondWithError(w, http.StatusNotFound, "Movie not found", err)
-			return
-		}
 		respondWithError(w, http.StatusInternalServerError, "Error saving movie details", err)
 		return
 	}

@@ -20,6 +20,7 @@ func SetupServer(cfg *ApiConfig, filePathRoot, port string) *http.Server {
 	mux.HandleFunc("POST /api/movies/{movieId}/show-times", cfg.middlewareAdminAuth(cfg.handleCreateMovieShowTime))
 	mux.HandleFunc("GET /api/admin/movies", cfg.middlewareAdminAuth(cfg.handleAdminShowMovies))
 	mux.HandleFunc("PUT /api/movies/{movieId}", cfg.middlewareAdminAuth(cfg.handleUpdateMovieDetails))
+	mux.HandleFunc("DELETE /api/movies/{movieId}", cfg.middlewareAdminAuth(cfg.handleDeleteMovie))
 
 	mux.HandleFunc("GET /api/show-times/{showTimeId}", cfg.middlewareAdminAuth(cfg.handleGetShowTimeDetails))
 

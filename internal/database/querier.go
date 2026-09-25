@@ -21,6 +21,7 @@ type Querier interface {
 	CreateReservation(ctx context.Context, arg CreateReservationParams) (Reservation, error)
 	CreateShowTime(ctx context.Context, arg CreateShowTimeParams) (ShowTime, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DeleteMovie(ctx context.Context, id uuid.UUID) error
 	DeleteUserBooking(ctx context.Context, arg DeleteUserBookingParams) error
 	GetAllMovies(ctx context.Context) ([]GetAllMoviesRow, error)
 	GetCinemaOngoingBookings(ctx context.Context, arg GetCinemaOngoingBookingsParams) (GetCinemaOngoingBookingsRow, error)
