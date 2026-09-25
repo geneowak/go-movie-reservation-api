@@ -23,6 +23,7 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteUserBooking(ctx context.Context, arg DeleteUserBookingParams) error
 	GetAllMovies(ctx context.Context) ([]GetAllMoviesRow, error)
+	GetCinemaOngoingBookings(ctx context.Context, arg GetCinemaOngoingBookingsParams) (GetCinemaOngoingBookingsRow, error)
 	GetLocationDetails(ctx context.Context, id uuid.UUID) (GetLocationDetailsRow, error)
 	GetLocations(ctx context.Context) ([]Location, error)
 	GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)

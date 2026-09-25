@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/geneowak/go-expense-tracker/internal/types"
 	"github.com/google/uuid"
@@ -75,13 +76,69 @@ func (q *Queries) CreateCinema(ctx context.Context, arg CreateCinemaParams) (Cin
 	return i, err
 }
 
+const getCinemaOngoingBookings = `-- name: GetCinemaOngoingBookings :one
+SELECT
+    cinemas.id, cinemas.location_id, cinemas.name, cinemas.experience_types, cinemas.seat_map, cinemas.created_at, cinemas.updated_at,
+    COALESCE(st_agg.showtimes, '[]'::jsonb) AS bookings
+FROM
+    cinemas
+    LEFT JOIN LATERAL(
+        SELECT
+            jsonb_agg(
+                to_jsonb(st)
+                ORDER BY
+                    st.end_date
+            ) AS showtimes
+        FROM
+            show_times st
+        WHERE
+            st.cinema_id = cinemas.id
+            AND st.end_date > $2
+    ) st_agg ON TRUE
+WHERE
+    cinemas.id = $1
+`
+
+type GetCinemaOngoingBookingsParams struct {
+	ID      uuid.UUID `json:"id"`
+	EndDate time.Time `json:"end_date"`
+}
+
+type GetCinemaOngoingBookingsRow struct {
+	ID              uuid.UUID         `json:"id"`
+	LocationID      uuid.UUID         `json:"location_id"`
+	Name            string            `json:"name"`
+	ExperienceTypes types.StringSlice `json:"experience_types"`
+	SeatMap         types.SeatMap     `json:"seat_map"`
+	CreatedAt       time.Time         `json:"created_at"`
+	UpdatedAt       time.Time         `json:"updated_at"`
+	Bookings        []byte            `json:"bookings"`
+}
+
+func (q *Queries) GetCinemaOngoingBookings(ctx context.Context, arg GetCinemaOngoingBookingsParams) (GetCinemaOngoingBookingsRow, error) {
+	row := q.db.QueryRow(ctx, getCinemaOngoingBookings, arg.ID, arg.EndDate)
+	var i GetCinemaOngoingBookingsRow
+	err := row.Scan(
+		&i.ID,
+		&i.LocationID,
+		&i.Name,
+		&i.ExperienceTypes,
+		&i.SeatMap,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Bookings,
+	)
+	return i, err
+}
+
 const updateCinemaDetails = `-- name: UpdateCinemaDetails :one
 UPDATE
     cinemas
 SET
     name = $1,
     experience_types = $2,
-    seat_map = $3
+    seat_map = $3,
+    updated_at = NOW()
 WHERE
     id = $4
 RETURNING

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/geneowak/go-expense-tracker/internal/database"
 	"github.com/geneowak/go-expense-tracker/internal/types"
@@ -22,6 +23,26 @@ func (cfg *ApiConfig) handleUpdateCinemaDetails(w http.ResponseWriter, r *http.R
 	cinemaId, err := uuid.Parse(idParam)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid cinema id", err)
+		return
+	}
+
+	// a booked cinema should not be edited because this could alter some already booked seats
+	cinemaBookings, err := cfg.DB.GetCinemaOngoingBookings(r.Context(), database.GetCinemaOngoingBookingsParams{
+		ID:      cinemaId,
+		EndDate: time.Now(),
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			respondWithError(w, http.StatusNotFound, "Cinema not found", err)
+			return
+		}
+		respondWithError(w, http.StatusInternalServerError, "Error checking cinema bookings.", err)
+		return
+	}
+	var bookings []json.RawMessage
+	_ = json.Unmarshal(cinemaBookings.Bookings, &bookings)
+	if len(bookings) > 0 {
+		respondWithError(w, http.StatusBadRequest, "Cinema has on going show and so can not be edited at the moment", errors.New("Cinema is currently booked"))
 		return
 	}
 

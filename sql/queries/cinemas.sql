@@ -31,8 +31,31 @@ UPDATE
 SET
     name = $1,
     experience_types = $2,
-    seat_map = $3
+    seat_map = $3,
+    updated_at = NOW()
 WHERE
     id = $4
 RETURNING
     *;
+
+-- name: GetCinemaOngoingBookings :one
+SELECT
+    cinemas.*,
+    COALESCE(st_agg.showtimes, '[]'::jsonb) AS bookings
+FROM
+    cinemas
+    LEFT JOIN LATERAL(
+        SELECT
+            jsonb_agg(
+                to_jsonb(st)
+                ORDER BY
+                    st.end_date
+            ) AS showtimes
+        FROM
+            show_times st
+        WHERE
+            st.cinema_id = cinemas.id
+            AND st.end_date > $2
+    ) st_agg ON TRUE
+WHERE
+    cinemas.id = $1;

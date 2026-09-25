@@ -23,7 +23,7 @@ ADMIN ROUTES
 - [x] GET /api/show-times/{showTimeId}
 - [x] GET /api/locations
 - [x] GET /api/locations/{locationId}
-- [ ] PUT /api/cinemas/{cinemaId} #e.g updating seat map
+- [x] PUT /api/cinemas/{cinemaId} #e.g updating seat map
 - [x] GET /api/admin/movies (returns all the movies for admin management)
 - [ ] PUT /api/movies/{movieId}
 - [ ] DELETE /api/movies/{movieId}
