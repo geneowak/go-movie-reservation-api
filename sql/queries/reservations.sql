@@ -76,3 +76,12 @@ DELETE FROM
 WHERE
     id = $1
     AND user_id = $2;
+
+-- name: GetShowTimeReservations :many
+SELECT
+    *
+FROM
+    reservations
+WHERE
+    show_time_id = $1
+    AND STATUS = $2;

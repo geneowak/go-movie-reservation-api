@@ -101,6 +101,50 @@ func (q *Queries) GetReservationBySeatNo(ctx context.Context, arg GetReservation
 	return i, err
 }
 
+const getShowTimeReservations = `-- name: GetShowTimeReservations :many
+SELECT
+    id, show_time_id, user_id, seat_no, status, reserved_at, created_at, updated_at
+FROM
+    reservations
+WHERE
+    show_time_id = $1
+    AND STATUS = $2
+`
+
+type GetShowTimeReservationsParams struct {
+	ShowTimeID uuid.UUID `json:"show_time_id"`
+	Status     string    `json:"status"`
+}
+
+func (q *Queries) GetShowTimeReservations(ctx context.Context, arg GetShowTimeReservationsParams) ([]Reservation, error) {
+	rows, err := q.db.Query(ctx, getShowTimeReservations, arg.ShowTimeID, arg.Status)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Reservation
+	for rows.Next() {
+		var i Reservation
+		if err := rows.Scan(
+			&i.ID,
+			&i.ShowTimeID,
+			&i.UserID,
+			&i.SeatNo,
+			&i.Status,
+			&i.ReservedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserBookingById = `-- name: GetUserBookingById :one
 SELECT
     id, show_time_id, user_id, seat_no, status, reserved_at, created_at, updated_at
