@@ -7,6 +7,9 @@ package database
 
 import (
 	"context"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 const createLocation = `-- name: CreateLocation :one
@@ -41,6 +44,53 @@ func (q *Queries) CreateLocation(ctx context.Context, arg CreateLocationParams) 
 		&i.GoogleMapUrl,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getLocationDetails = `-- name: GetLocationDetails :one
+SELECT
+    locations.id, locations.name, locations.address, locations.google_map_url, locations.created_at, locations.updated_at,
+    COALESCE(c_agg.venues, '[]'::jsonb) AS cinemas
+FROM
+    locations
+    LEFT JOIN LATERAL(
+        SELECT
+            jsonb_agg(
+                to_jsonb(c)
+                ORDER BY
+                    c.created_at
+            ) AS venues
+        FROM
+            cinemas c
+        WHERE
+            c.location_id = locations.id
+    ) c_agg ON TRUE
+WHERE
+    locations.id = $1
+`
+
+type GetLocationDetailsRow struct {
+	ID           uuid.UUID `json:"id"`
+	Name         string    `json:"name"`
+	Address      string    `json:"address"`
+	GoogleMapUrl string    `json:"google_map_url"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	Cinemas      []byte    `json:"cinemas"`
+}
+
+func (q *Queries) GetLocationDetails(ctx context.Context, id uuid.UUID) (GetLocationDetailsRow, error) {
+	row := q.db.QueryRow(ctx, getLocationDetails, id)
+	var i GetLocationDetailsRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Address,
+		&i.GoogleMapUrl,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Cinemas,
 	)
 	return i, err
 }
