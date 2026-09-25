@@ -44,3 +44,37 @@ func (q *Queries) CreateLocation(ctx context.Context, arg CreateLocationParams) 
 	)
 	return i, err
 }
+
+const getLocations = `-- name: GetLocations :many
+SELECT
+    id, name, address, google_map_url, created_at, updated_at
+FROM
+    locations
+`
+
+func (q *Queries) GetLocations(ctx context.Context) ([]Location, error) {
+	rows, err := q.db.Query(ctx, getLocations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Location
+	for rows.Next() {
+		var i Location
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Address,
+			&i.GoogleMapUrl,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

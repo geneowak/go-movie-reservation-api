@@ -12,3 +12,9 @@ VALUES
     (uuidv7(), $1, $2, $3, NOW(), NOW())
 RETURNING
     *;
+
+-- name: GetLocations :many
+SELECT
+    *
+FROM
+    locations;

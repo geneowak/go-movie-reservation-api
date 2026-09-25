@@ -21,7 +21,7 @@ ADMIN ROUTES
 - [x] POST /api/movies
 - [x] POST /api/movies/{movieId}/show-times
 - [x] GET /api/show-times/{showTimeId}
-- [ ] GET /api/locations
+- [x] GET /api/locations
 - [ ] GET /api/cinemas
 - [ ] PUT /api/cinemas/{cinemaId} #e.g updating seat map
 - [x] GET /api/admin/movies (returns all the movies for admin management)
