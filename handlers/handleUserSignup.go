@@ -13,7 +13,7 @@ type createUserRequest struct {
 	Password string `json:"password" validate:"required,alphanum,min=5"`
 }
 
-func (cfg *ApiConfig) handleCreateUser(w http.ResponseWriter, r *http.Request) {
+func (cfg *ApiConfig) handleUserSignup(w http.ResponseWriter, r *http.Request) {
 	var params createUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
 		handleJsonDecodeError(w, err)
