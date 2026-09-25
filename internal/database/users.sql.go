@@ -113,3 +113,33 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 	)
 	return i, err
 }
+
+const updateUserAdminStatus = `-- name: UpdateUserAdminStatus :one
+UPDATE
+    users
+SET
+    is_admin = $1
+WHERE
+    id = $2
+RETURNING
+    id, email, is_admin, hashed_password, created_at, updated_at
+`
+
+type UpdateUserAdminStatusParams struct {
+	IsAdmin bool      `json:"is_admin"`
+	ID      uuid.UUID `json:"id"`
+}
+
+func (q *Queries) UpdateUserAdminStatus(ctx context.Context, arg UpdateUserAdminStatusParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateUserAdminStatus, arg.IsAdmin, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.IsAdmin,
+		&i.HashedPassword,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

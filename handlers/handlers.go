@@ -16,6 +16,8 @@ func SetupServer(cfg *ApiConfig, filePathRoot, port string) *http.Server {
 	mux.HandleFunc("POST /api/auth/revoke", cfg.handleRevokeToken)
 
 	// Admin routes
+	mux.HandleFunc("PUT /api/users/{userId}", cfg.middlewareAdminAuth(cfg.handleUpdateAdminStatus))
+
 	mux.HandleFunc("POST /api/movies", cfg.middlewareAdminAuth(cfg.handleCreateMovie))
 	mux.HandleFunc("POST /api/movies/{movieId}/show-times", cfg.middlewareAdminAuth(cfg.handleCreateMovieShowTime))
 	mux.HandleFunc("GET /api/admin/movies", cfg.middlewareAdminAuth(cfg.handleAdminShowMovies))

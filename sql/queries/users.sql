@@ -42,3 +42,13 @@ SELECT
         WHERE
             id = $1
     );
+
+-- name: UpdateUserAdminStatus :one
+UPDATE
+    users
+SET
+    is_admin = $1
+WHERE
+    id = $2
+RETURNING
+    *;

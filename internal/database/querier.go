@@ -44,6 +44,7 @@ type Querier interface {
 	UpdateCinemaDetails(ctx context.Context, arg UpdateCinemaDetailsParams) (Cinema, error)
 	UpdateMovieDetails(ctx context.Context, arg UpdateMovieDetailsParams) (Movie, error)
 	UpdateReservation(ctx context.Context, arg UpdateReservationParams) (Reservation, error)
+	UpdateUserAdminStatus(ctx context.Context, arg UpdateUserAdminStatusParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

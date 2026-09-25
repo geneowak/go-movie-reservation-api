@@ -27,7 +27,7 @@ ADMIN ROUTES
 - [x] GET /api/admin/movies (returns all the movies for admin management)
 - [x] PUT /api/movies/{movieId}
 - [x] DELETE /api/movies/{movieId}
-- [ ] PUT /api/users/{userId} # assigning or removing admins
+- [x] PUT /api/users/{userId} # assigning or removing admins
 
 USER ROUTES
 - [x] GET /api/movies?genre={genre}&show-time={time}&date={date} (gets currently showing movies)
