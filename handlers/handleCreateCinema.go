@@ -19,7 +19,7 @@ type createCinemaRequest struct {
 func (cfg *ApiConfig) handleCreateCinema(w http.ResponseWriter, r *http.Request) {
 	var req createCinemaRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Failed to decode request body", err)
+		handleJsonDecodeError(w, err)
 		return
 	}
 

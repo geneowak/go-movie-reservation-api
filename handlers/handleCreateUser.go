@@ -16,7 +16,7 @@ func (cfg *ApiConfig) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 
 	var params createUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		handleJsonDecodeError(w, err)
 		return
 	}
 	if err := cfg.Validate.Struct(params); err != nil {

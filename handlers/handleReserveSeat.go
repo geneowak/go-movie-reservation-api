@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -22,12 +21,7 @@ type reserveSeatRequest struct {
 func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) {
 	var req reserveSeatRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		if typeErr, ok := errors.AsType[*json.UnmarshalTypeError](err); ok {
-			msg := fmt.Sprintf("Invalid field %s: Expected type %s, but got %s", typeErr.Field, typeErr.Type.String(), typeErr.Value)
-			respondWithError(w, http.StatusUnprocessableEntity, msg, err)
-			return
-		}
-		respondWithError(w, http.StatusBadRequest, "Invalid request body", err)
+		handleJsonDecodeError(w, err)
 		return
 	}
 

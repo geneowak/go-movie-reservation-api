@@ -35,7 +35,7 @@ func (cfg *ApiConfig) handleCreateMovieShowTime(w http.ResponseWriter, r *http.R
 
 	var req createMovieShowTimeRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request body", err)
+		handleJsonDecodeError(w, err)
 		return
 	}
 

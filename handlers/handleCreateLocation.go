@@ -16,7 +16,7 @@ type createLocationRequest struct {
 func (cfg *ApiConfig) handleCreateLocation(w http.ResponseWriter, r *http.Request) {
 	var req createLocationRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Failed to decode request body", err)
+		handleJsonDecodeError(w, err)
 		return
 	}
 

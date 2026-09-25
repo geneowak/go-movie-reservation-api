@@ -17,7 +17,7 @@ func (cfg *ApiConfig) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	var params loginRequest
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Failed to decode request", err)
+		handleJsonDecodeError(w, err)
 		return
 	}
 
