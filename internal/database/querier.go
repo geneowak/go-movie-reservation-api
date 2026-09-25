@@ -21,6 +21,7 @@ type Querier interface {
 	CreateReservation(ctx context.Context, arg CreateReservationParams) (Reservation, error)
 	CreateShowTime(ctx context.Context, arg CreateShowTimeParams) (ShowTime, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DeleteUserBooking(ctx context.Context, arg DeleteUserBookingParams) error
 	GetAllMovies(ctx context.Context) ([]GetAllMoviesRow, error)
 	GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
 	GetMovieDetails(ctx context.Context, id uuid.UUID) (GetMovieDetailsRow, error)
@@ -28,6 +29,7 @@ type Querier interface {
 	GetReservationBySeatNo(ctx context.Context, arg GetReservationBySeatNoParams) (Reservation, error)
 	GetShowTimeDetails(ctx context.Context, id uuid.UUID) (GetShowTimeDetailsRow, error)
 	GetShowingMovies(ctx context.Context, arg GetShowingMoviesParams) ([]GetShowingMoviesRow, error)
+	GetUserBookingById(ctx context.Context, arg GetUserBookingByIdParams) (Reservation, error)
 	GetUserBookings(ctx context.Context, userID uuid.UUID) ([]Reservation, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserById(ctx context.Context, id uuid.UUID) (User, error)

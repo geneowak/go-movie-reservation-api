@@ -35,7 +35,7 @@ USER ROUTES
 - [x] POST /api/seats/reserve -> reserve seats for 5mins while browsing
 - [x] POST /api/seats/book -> confirm seat booking
 - [x] GET /api/bookings
-- [ ] DELETE /api/bookings/{reservationId} -> user can remove seats they have booked
+- [x] DELETE /api/bookings/{reservationId} -> user can remove seats they have booked
 
 
 TODO (clean up after initial implementation)

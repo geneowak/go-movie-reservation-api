@@ -57,3 +57,22 @@ FROM
 WHERE
     STATUS = 'booked'
     AND user_id = $1;
+
+-- name: GetUserBookingById :one
+SELECT
+    *
+FROM
+    reservations
+WHERE
+    STATUS = 'booked'
+    AND id = $1
+    AND user_id = $2
+LIMIT
+    1;
+
+-- name: DeleteUserBooking :exec
+DELETE FROM
+    reservations
+WHERE
+    id = $1
+    AND user_id = $2;

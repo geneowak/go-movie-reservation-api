@@ -50,6 +50,24 @@ func (q *Queries) CreateReservation(ctx context.Context, arg CreateReservationPa
 	return i, err
 }
 
+const deleteUserBooking = `-- name: DeleteUserBooking :exec
+DELETE FROM
+    reservations
+WHERE
+    id = $1
+    AND user_id = $2
+`
+
+type DeleteUserBookingParams struct {
+	ID     uuid.UUID `json:"id"`
+	UserID uuid.UUID `json:"user_id"`
+}
+
+func (q *Queries) DeleteUserBooking(ctx context.Context, arg DeleteUserBookingParams) error {
+	_, err := q.db.Exec(ctx, deleteUserBooking, arg.ID, arg.UserID)
+	return err
+}
+
 const getReservationBySeatNo = `-- name: GetReservationBySeatNo :one
 SELECT
     id, show_time_id, user_id, seat_no, status, reserved_at, created_at, updated_at
@@ -69,6 +87,40 @@ type GetReservationBySeatNoParams struct {
 
 func (q *Queries) GetReservationBySeatNo(ctx context.Context, arg GetReservationBySeatNoParams) (Reservation, error) {
 	row := q.db.QueryRow(ctx, getReservationBySeatNo, arg.ShowTimeID, arg.SeatNo)
+	var i Reservation
+	err := row.Scan(
+		&i.ID,
+		&i.ShowTimeID,
+		&i.UserID,
+		&i.SeatNo,
+		&i.Status,
+		&i.ReservedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getUserBookingById = `-- name: GetUserBookingById :one
+SELECT
+    id, show_time_id, user_id, seat_no, status, reserved_at, created_at, updated_at
+FROM
+    reservations
+WHERE
+    STATUS = 'booked'
+    AND id = $1
+    AND user_id = $2
+LIMIT
+    1
+`
+
+type GetUserBookingByIdParams struct {
+	ID     uuid.UUID `json:"id"`
+	UserID uuid.UUID `json:"user_id"`
+}
+
+func (q *Queries) GetUserBookingById(ctx context.Context, arg GetUserBookingByIdParams) (Reservation, error) {
+	row := q.db.QueryRow(ctx, getUserBookingById, arg.ID, arg.UserID)
 	var i Reservation
 	err := row.Scan(
 		&i.ID,

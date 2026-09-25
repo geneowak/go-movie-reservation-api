@@ -31,6 +31,7 @@ func SetupServer(cfg *ApiConfig, filePathRoot, port string) *http.Server {
 	mux.HandleFunc("POST /api/seats/reserve", cfg.middlewareAuth(cfg.handleReserveSeat))
 	mux.HandleFunc("POST /api/seats/book", cfg.middlewareAuth(cfg.handleSeatBooking))
 	mux.HandleFunc("GET /api/bookings", cfg.middlewareAuth(cfg.handleGetBookings))
+	mux.HandleFunc("DELETE /api/bookings/{reservationId}", cfg.middlewareAuth(cfg.handleDeleteBooking))
 
 	return &http.Server{
 		Addr:         ":" + port,
