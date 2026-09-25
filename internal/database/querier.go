@@ -13,6 +13,7 @@ import (
 type Querier interface {
 	CheckCinemaById(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckMovieById(ctx context.Context, id uuid.UUID) (bool, error)
+	CheckUserEmail(ctx context.Context, email string) (bool, error)
 	CheckUserId(ctx context.Context, id uuid.UUID) (bool, error)
 	CreateCinema(ctx context.Context, arg CreateCinemaParams) (Cinema, error)
 	CreateLocation(ctx context.Context, arg CreateLocationParams) (Location, error)

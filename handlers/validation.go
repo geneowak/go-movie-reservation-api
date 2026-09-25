@@ -23,8 +23,13 @@ func CreateValidator(cfg *ApiConfig) *validator.Validate {
 	})
 
 	// register custom validators
-	validate.RegisterValidation("cinema-exists", cfg.ValidateCinemaId)
-	validate.RegisterValidation("is-valid-seat", func(fl validator.FieldLevel) bool {
+	validate.RegisterValidation("cinema_exists", cfg.ValidateCinemaId)
+	/** this email check can be removed if the system cares about enumeration attacks in that case
+	* you would try to register the email and if it fails because it exists you give the same generic response
+	* as the successfull response so that the attacker doesn't easily figure out if the email has been registered in the system
+	**/
+	validate.RegisterValidation("is_unique_email", cfg.IsUniqueEmail)
+	validate.RegisterValidation("is_valid_seat", func(fl validator.FieldLevel) bool {
 		val := fl.Field().String()
 		// seat no needs to be in the format of Row:Seat eg A:1
 		elements := strings.Split(val, ":")
@@ -119,10 +124,12 @@ func getErrorMsg(err validator.FieldError) string {
 	case "alphanum":
 		return fmt.Sprintf("The %s field must be alphanumeric.", err.Field())
 	// custom validator errors
-	case "cinema-exists":
+	case "cinema_exists":
 		return fmt.Sprintf("The %s field must be a valid ID of an existing cinema.", err.Field())
-	case "is-valid-seat":
+	case "is_valid_seat":
 		return fmt.Sprintf("The %s field is not a valid cinema seat number. Expected format is Row:SeatNo eg A:1", err.Field())
+	case "is_unique_email":
+		return fmt.Sprintf("The %s has already been registered.", err.Field())
 	default:
 		return err.Error()
 	}

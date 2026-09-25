@@ -43,6 +43,17 @@ SELECT
             id = $1
     );
 
+-- name: CheckUserEmail :one
+SELECT
+    EXISTS(
+        SELECT
+            1
+        FROM
+            users
+        WHERE
+            email = $1
+    );
+
 -- name: UpdateUserAdminStatus :one
 UPDATE
     users

@@ -14,7 +14,7 @@ type createMovieShowTimeRequest struct {
 	Price          float32 `json:"price" validate:"required,number,gt=0"`
 	Description    string  `json:"description" validate:"required"`
 	PriceCurrency  string  `json:"price_currency" validate:"required,iso4217"`
-	CinemaID       string  `json:"cinema_id" validate:"required,uuid_rfc4122,cinema-exists"`
+	CinemaID       string  `json:"cinema_id" validate:"required,uuid_rfc4122,cinema_exists"`
 	ExperienceType string  `json:"experience_type" validate:"required"`
 	StartDate      string  `json:"start_date" validate:"required,datetime=2006-01-02"`
 	EndDate        string  `json:"end_date" validate:"required,datetime=2006-01-02,gtecsfield=StartDate"`

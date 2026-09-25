@@ -8,12 +8,12 @@ import (
 	"github.com/geneowak/go-expense-tracker/internal/database"
 )
 
-func (cfg *ApiConfig) handleCreateUser(w http.ResponseWriter, r *http.Request) {
-	type createUserRequest struct {
-		Email    string `json:"email" validate:"required,email"`
-		Password string `json:"password" validate:"required,alphanum,min=5"`
-	}
+type createUserRequest struct {
+	Email    string `json:"email" validate:"required,email,is_unique_email"`
+	Password string `json:"password" validate:"required,alphanum,min=5"`
+}
 
+func (cfg *ApiConfig) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	var params createUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
 		handleJsonDecodeError(w, err)

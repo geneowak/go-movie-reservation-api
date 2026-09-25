@@ -11,6 +11,25 @@ import (
 	"github.com/google/uuid"
 )
 
+const checkUserEmail = `-- name: CheckUserEmail :one
+SELECT
+    EXISTS(
+        SELECT
+            1
+        FROM
+            users
+        WHERE
+            email = $1
+    )
+`
+
+func (q *Queries) CheckUserEmail(ctx context.Context, email string) (bool, error) {
+	row := q.db.QueryRow(ctx, checkUserEmail, email)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const checkUserId = `-- name: CheckUserId :one
 SELECT
     EXISTS(

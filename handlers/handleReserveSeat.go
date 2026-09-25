@@ -14,7 +14,7 @@ import (
 )
 
 type reserveSeatRequest struct {
-	Seat       string `json:"seat" validate:"required,is-valid-seat"`
+	Seat       string `json:"seat" validate:"required,is_valid_seat"`
 	ShowTimeId string `json:"show_time_id" validate:"required,uuid_rfc4122"`
 }
 
