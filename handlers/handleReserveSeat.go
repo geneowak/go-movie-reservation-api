@@ -61,7 +61,7 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// don't expect this to have an error since this handler is wrapped with the auth middleware
-	userId, _ := UserIdFromContext(r.Context())
+	userId, _ := GetUserIdFromContext(r.Context())
 
 	// next is to validate if the seat has already been reserved or booked
 	existingBooking, err := cfg.DB.GetReservationBySeatNo(r.Context(), database.GetReservationBySeatNoParams{

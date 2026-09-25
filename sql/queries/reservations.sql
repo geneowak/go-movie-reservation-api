@@ -48,3 +48,12 @@ WHERE
     AND user_id = $2
 RETURNING
     *;
+
+-- name: GetUserBookings :many
+SELECT
+    *
+FROM
+    reservations
+WHERE
+    STATUS = 'booked'
+    AND user_id = $1;

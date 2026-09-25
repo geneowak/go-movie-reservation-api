@@ -83,6 +83,45 @@ func (q *Queries) GetReservationBySeatNo(ctx context.Context, arg GetReservation
 	return i, err
 }
 
+const getUserBookings = `-- name: GetUserBookings :many
+SELECT
+    id, show_time_id, user_id, seat_no, status, reserved_at, created_at, updated_at
+FROM
+    reservations
+WHERE
+    STATUS = 'booked'
+    AND user_id = $1
+`
+
+func (q *Queries) GetUserBookings(ctx context.Context, userID uuid.UUID) ([]Reservation, error) {
+	rows, err := q.db.Query(ctx, getUserBookings, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Reservation
+	for rows.Next() {
+		var i Reservation
+		if err := rows.Scan(
+			&i.ID,
+			&i.ShowTimeID,
+			&i.UserID,
+			&i.SeatNo,
+			&i.Status,
+			&i.ReservedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const markReservationBooked = `-- name: MarkReservationBooked :one
 UPDATE
     reservations

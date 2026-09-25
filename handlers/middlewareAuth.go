@@ -33,7 +33,7 @@ func (cfg *ApiConfig) middlewareAuth(next http.HandlerFunc) http.HandlerFunc {
 	})
 }
 
-func UserIdFromContext(ctx context.Context) (uuid.UUID, error) {
+func GetUserIdFromContext(ctx context.Context) (uuid.UUID, error) {
 	val := ctx.Value("user_id")
 	if val == nil {
 		return uuid.Nil, errors.New("User ID not found in context")

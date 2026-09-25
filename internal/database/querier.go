@@ -28,6 +28,7 @@ type Querier interface {
 	GetReservationBySeatNo(ctx context.Context, arg GetReservationBySeatNoParams) (Reservation, error)
 	GetShowTimeDetails(ctx context.Context, id uuid.UUID) (GetShowTimeDetailsRow, error)
 	GetShowingMovies(ctx context.Context, arg GetShowingMoviesParams) ([]GetShowingMoviesRow, error)
+	GetUserBookings(ctx context.Context, userID uuid.UUID) ([]Reservation, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserById(ctx context.Context, id uuid.UUID) (User, error)
 	MarkReservationBooked(ctx context.Context, arg MarkReservationBookedParams) (Reservation, error)

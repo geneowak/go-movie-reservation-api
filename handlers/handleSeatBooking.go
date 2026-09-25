@@ -27,7 +27,7 @@ func (cfg *ApiConfig) handleSeatBooking(w http.ResponseWriter, r *http.Request) 
 	// going to first do the basic booking and will come back and validate
 	// TODO: validate that the reservation belongs to the user and that the status is not in booked
 	response := []database.Reservation{}
-	userId, _ := UserIdFromContext(r.Context())
+	userId, _ := GetUserIdFromContext(r.Context())
 	for _, stringId := range req.SeatReservations {
 		// don't expect an error here because we validated that they are uuids
 		reservationId, _ := uuid.Parse(stringId)
