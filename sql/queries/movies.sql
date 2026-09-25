@@ -85,3 +85,25 @@ WHERE
     id = $8
 RETURNING
     *;
+
+-- name: GetMovieOngoingShowtimes :one
+SELECT
+    movies.*,
+    COALESCE(st_agg.show_times, '[]'::jsonb) AS show_times
+FROM
+    movies
+    LEFT JOIN LATERAL(
+        SELECT
+            jsonb_agg(
+                to_jsonb(st)
+                ORDER BY
+                    st.end_date
+            ) AS show_times
+        FROM
+            show_times st
+        WHERE
+            st.end_date >= $2
+            AND st.movie_id = movies.id
+    ) st_agg ON TRUE
+WHERE
+    movies.id = $1;

@@ -8,7 +8,7 @@ import (
 )
 
 type createMovieRequest struct {
-	Name            string   `json:"name" validate:"required,alphanum,min=3"`
+	Name            string   `json:"name" validate:"required,min=3"`
 	Description     string   `json:"description" validate:"required,min=10"`
 	DurationInMins  int      `json:"duration_in_mins" validate:"required,number"`
 	TrailerUrl      string   `json:"trailer_url" validate:"required,url"`

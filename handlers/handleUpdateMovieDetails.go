@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/geneowak/go-expense-tracker/internal/database"
 	"github.com/google/uuid"
@@ -36,6 +37,28 @@ func (cfg *ApiConfig) handleUpdateMovieDetails(w http.ResponseWriter, r *http.Re
 
 	if err = cfg.Validate.Struct(req); err != nil {
 		handleValidationErrors(w, err)
+		return
+	}
+
+	// a movie that has an ongoing booking must not be editable because
+	// it could change the info that the user was expecting when they made a booking
+	movieCurrentShowTimes, err := cfg.DB.GetMovieOngoingShowtimes(r.Context(), database.GetMovieOngoingShowtimesParams{
+		ID:      movieId,
+		EndDate: time.Now(),
+	})
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			respondWithError(w, http.StatusNotFound, "Movie not found", err)
+			return
+		}
+		respondWithError(w, http.StatusInternalServerError, "Error saving checking movie showtimes", err)
+		return
+	}
+	var currentShowTimes []json.RawMessage
+	_ = json.Unmarshal(movieCurrentShowTimes.ShowTimes, &currentShowTimes)
+	if len(currentShowTimes) > 0 {
+		respondWithError(w, http.StatusBadRequest, "Cannot edit a movie with running showtimes", errors.New("Movie has running show times"))
 		return
 	}
 

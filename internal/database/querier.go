@@ -28,6 +28,7 @@ type Querier interface {
 	GetLocations(ctx context.Context) ([]Location, error)
 	GetMovieById(ctx context.Context, id uuid.UUID) (Movie, error)
 	GetMovieDetails(ctx context.Context, id uuid.UUID) (GetMovieDetailsRow, error)
+	GetMovieOngoingShowtimes(ctx context.Context, arg GetMovieOngoingShowtimesParams) (GetMovieOngoingShowtimesRow, error)
 	GetRefreshToken(ctx context.Context, token string) (RefreshToken, error)
 	GetReservationBySeatNo(ctx context.Context, arg GetReservationBySeatNoParams) (Reservation, error)
 	GetShowTimeDetails(ctx context.Context, id uuid.UUID) (GetShowTimeDetailsRow, error)
