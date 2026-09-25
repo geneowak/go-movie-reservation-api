@@ -24,3 +24,15 @@ SELECT
         WHERE
             id = $1
     );
+
+-- name: UpdateCinemaDetails :one
+UPDATE
+    cinemas
+SET
+    name = $1,
+    experience_types = $2,
+    seat_map = $3
+WHERE
+    id = $4
+RETURNING
+    *;

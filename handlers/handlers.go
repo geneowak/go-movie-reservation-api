@@ -27,6 +27,7 @@ func SetupServer(cfg *ApiConfig, filePathRoot, port string) *http.Server {
 	mux.HandleFunc("GET /api/locations/{locationId}", cfg.middlewareAdminAuth(cfg.handleGetLocationDetails))
 
 	mux.HandleFunc("POST /api/cinemas", cfg.middlewareAdminAuth(cfg.handleCreateCinema))
+	mux.HandleFunc("PUT /api/cinemas/{cinemaId}", cfg.middlewareAdminAuth(cfg.handleUpdateCinemaDetails))
 
 	// user routes
 	mux.HandleFunc("GET /api/movies", cfg.middlewareAuth(cfg.handleGetMovies))

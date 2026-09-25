@@ -38,6 +38,7 @@ type Querier interface {
 	GetUserById(ctx context.Context, id uuid.UUID) (User, error)
 	MarkReservationBooked(ctx context.Context, arg MarkReservationBookedParams) (Reservation, error)
 	RevokeRefreshToken(ctx context.Context, token string) error
+	UpdateCinemaDetails(ctx context.Context, arg UpdateCinemaDetailsParams) (Cinema, error)
 	UpdateReservation(ctx context.Context, arg UpdateReservationParams) (Reservation, error)
 }
 

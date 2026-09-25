@@ -74,3 +74,43 @@ func (q *Queries) CreateCinema(ctx context.Context, arg CreateCinemaParams) (Cin
 	)
 	return i, err
 }
+
+const updateCinemaDetails = `-- name: UpdateCinemaDetails :one
+UPDATE
+    cinemas
+SET
+    name = $1,
+    experience_types = $2,
+    seat_map = $3
+WHERE
+    id = $4
+RETURNING
+    id, location_id, name, experience_types, seat_map, created_at, updated_at
+`
+
+type UpdateCinemaDetailsParams struct {
+	Name            string            `json:"name"`
+	ExperienceTypes types.StringSlice `json:"experience_types"`
+	SeatMap         types.SeatMap     `json:"seat_map"`
+	ID              uuid.UUID         `json:"id"`
+}
+
+func (q *Queries) UpdateCinemaDetails(ctx context.Context, arg UpdateCinemaDetailsParams) (Cinema, error) {
+	row := q.db.QueryRow(ctx, updateCinemaDetails,
+		arg.Name,
+		arg.ExperienceTypes,
+		arg.SeatMap,
+		arg.ID,
+	)
+	var i Cinema
+	err := row.Scan(
+		&i.ID,
+		&i.LocationID,
+		&i.Name,
+		&i.ExperienceTypes,
+		&i.SeatMap,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
