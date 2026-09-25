@@ -185,3 +185,60 @@ func (q *Queries) GetMovieDetails(ctx context.Context, id uuid.UUID) (GetMovieDe
 	)
 	return i, err
 }
+
+const updateMovieDetails = `-- name: UpdateMovieDetails :one
+UPDATE
+    movies
+SET
+    name = $1,
+    description = $2,
+    duration_in_mins = $3,
+    trailer_url = $4,
+    genre = $5,
+    pg_rating = $6,
+    experience_types = $7,
+    updated_at = NOW()
+WHERE
+    id = $8
+RETURNING
+    id, name, description, duration_in_mins, trailer_url, genre, pg_rating, experience_types, created_at, updated_at, poster_image_url
+`
+
+type UpdateMovieDetailsParams struct {
+	Name            string            `json:"name"`
+	Description     string            `json:"description"`
+	DurationInMins  int32             `json:"duration_in_mins"`
+	TrailerUrl      string            `json:"trailer_url"`
+	Genre           types.StringSlice `json:"genre"`
+	PgRating        string            `json:"pg_rating"`
+	ExperienceTypes types.StringSlice `json:"experience_types"`
+	ID              uuid.UUID         `json:"id"`
+}
+
+func (q *Queries) UpdateMovieDetails(ctx context.Context, arg UpdateMovieDetailsParams) (Movie, error) {
+	row := q.db.QueryRow(ctx, updateMovieDetails,
+		arg.Name,
+		arg.Description,
+		arg.DurationInMins,
+		arg.TrailerUrl,
+		arg.Genre,
+		arg.PgRating,
+		arg.ExperienceTypes,
+		arg.ID,
+	)
+	var i Movie
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.DurationInMins,
+		&i.TrailerUrl,
+		&i.Genre,
+		&i.PgRating,
+		&i.ExperienceTypes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PosterImageUrl,
+	)
+	return i, err
+}

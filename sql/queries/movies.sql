@@ -68,3 +68,20 @@ FROM
     ) st_agg ON TRUE
 WHERE
     movies.id = $1;
+
+-- name: UpdateMovieDetails :one
+UPDATE
+    movies
+SET
+    name = $1,
+    description = $2,
+    duration_in_mins = $3,
+    trailer_url = $4,
+    genre = $5,
+    pg_rating = $6,
+    experience_types = $7,
+    updated_at = NOW()
+WHERE
+    id = $8
+RETURNING
+    *;
