@@ -11,7 +11,7 @@ import (
 )
 
 type updateAdminStatusRequest struct {
-	IsAdmin bool `json:"is_admin" validate:"required"`
+	IsAdmin bool `json:"is_admin"`
 }
 
 func (cfg *ApiConfig) handleUpdateAdminStatus(w http.ResponseWriter, r *http.Request) {
@@ -32,11 +32,6 @@ func (cfg *ApiConfig) handleUpdateAdminStatus(w http.ResponseWriter, r *http.Req
 	var req updateAdminStatusRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		handleJsonDecodeError(w, err)
-		return
-	}
-
-	if err := cfg.Validate.Struct(req); err != nil {
-		handleValidationErrors(w, err)
 		return
 	}
 
