@@ -55,12 +55,12 @@ comfortably, and a project substantial enough to learn from, which is how I foun
 
 I built it to be legible on two levels. As web work, it covers what a production Go service
 needs — token auth, admin-only routes, input validation, schema migrations, a clean test
-seam, consistent error contracts — and none of it comes from a framework, so the mechanics
-stay visible. As systems work, the substance sits underneath: concurrency correctness
-enforced by the schema rather than by trust, queries compiled ahead of time so a broken one
-cannot reach production, aggregates assembled in SQL to avoid N+1 round trips. And nothing
-assumes a single process — a seat cannot be double-booked even with several instances
-behind a load balancer.
+seam, and error contracts shaped like Laravel's, so a UI can bind failures straight to form
+fields — and none of it comes from a framework, so the mechanics stay visible. As systems
+work, the substance sits underneath: concurrency correctness enforced by the schema rather
+than by trust, queries compiled ahead of time so a broken one cannot reach production,
+aggregates assembled in SQL to avoid N+1 round trips. And nothing assumes a single process —
+a seat cannot be double-booked even with several instances behind a load balancer.
 
 ---
 
@@ -77,8 +77,8 @@ behind a load balancer.
 ### 1. Get the code and configure it
 
 ```bash
-git clone https://github.com/geneowak/go-movie-reservation-api.git
-cd go-movie-reservation-api
+git clone https://github.com/geneowak/cinehold.git
+cd cinehold
 
 cp .env.example .env
 ```
@@ -86,7 +86,7 @@ cp .env.example .env
 Then fill in `.env`:
 
 ```ini
-DB_URL="postgres://postgres:postgres@localhost:5432/go_movie_reservation_api?sslmode=disable"
+DB_URL="postgres://postgres:postgres@localhost:5432/cinehold?sslmode=disable"
 PLATFORM="dev"
 JWT_SECRET="<paste a long random string here>"
 PORT="8080"
@@ -109,7 +109,7 @@ openssl rand -base64 64
 ### 2. Create the database
 
 ```bash
-createdb go_movie_reservation_api
+createdb cinehold
 ```
 
 ### 3. Run the migrations
@@ -421,8 +421,8 @@ straight through. See [`handlers/testHelpers_test.go`](handlers/testHelpers_test
 | `show_times` | A movie playing at a cinema across a date range. |
 | `reservations` | One row per seat: the hold, and then the booking. |
 
-All primary keys are `uuidv7()`, generated in SQL rather than the application, which keeps
-them time-sortable and therefore index-friendly.
+Every primary key except `refresh_tokens.token` is `uuidv7()`, generated in SQL rather than
+the application, which keeps them time-sortable and therefore index-friendly.
 
 ### How the seat model works
 
@@ -464,6 +464,41 @@ Nested aggregates are built in SQL with `jsonb_agg` inside `LEFT JOIN LATERAL` r
 fetched with follow-up queries, which keeps movie + showtime and location + cinema reads
 to a single round trip. `json.RawMessage` fields appear in a couple of handlers to stop
 sqlc from base64-encoding nested JSON columns on its way through the generated structs.
+
+### Laravel conventions, deliberately carried over
+
+Seven years in Laravel leaves fingerprints. Three of its conventions turned out to be worth
+reproducing in Go, and all three are implemented by hand here rather than pulled from a
+framework.
+
+**Error responses.** Validation failures return `422` with a field-keyed error map, the
+shape every Laravel frontend developer already expects:
+
+```json
+{
+  "message": "There were some validation errors",
+  "errors": { "email": ["The email must be a valid email."] }
+}
+```
+
+`go-playground/validator` reports failures by struct tag, which a JavaScript client can't
+do anything useful with. [`handlers/validation.go`](handlers/validation.go) translates on
+two fronts: `RegisterTagNameFunc` maps field names to their JSON equivalents so error keys
+match the wire format rather than the Go struct, and `getErrorMsg` hand-writes a readable
+message per validation tag — including separate wording for slices and maps versus plain
+strings, so a "must contain at least 1 item" never reads as a character count. The payoff
+is that a UI can bind straight to form inputs.
+
+**Column casting.** Eloquent hands back JSON columns as collections and objects rather than
+strings. `internal/types` does the same job for sqlc: `SeatMap` and `StringSlice` implement
+`driver.Valuer` and `sql.Scanner`, and the `overrides` in [`sqlc.yaml`](sqlc.yaml) point
+`cinemas.seat_map`, `movies.genre` and the `experience_types` columns at them. A cinema's
+seating layout therefore arrives as a typed Go struct instead of a `[]byte` that every
+caller has to unmarshal and type-assert.
+
+**Test isolation.** [`internal/testdb`](internal/testdb/testdb.go) wraps each test in a
+transaction and rolls it back on completion, the same idea as Laravel's `RefreshDatabase`
+trait — every case starts from a clean slate without truncating tables between runs.
 
 ---
 
