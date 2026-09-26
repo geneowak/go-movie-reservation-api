@@ -64,7 +64,7 @@ SELECT
 FROM
     reservations
 WHERE
-    STATUS = 'booked'
+    STATUS = $3
     AND id = $1
     AND user_id = $2
 LIMIT

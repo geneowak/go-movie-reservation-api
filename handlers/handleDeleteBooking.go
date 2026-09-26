@@ -20,6 +20,7 @@ func (cfg *ApiConfig) handleDeleteBooking(w http.ResponseWriter, r *http.Request
 	reservation, err := cfg.DB.GetUserBookingById(r.Context(), database.GetUserBookingByIdParams{
 		ID:     reservationId,
 		UserID: userId,
+		Status: "booked",
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

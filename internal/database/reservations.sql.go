@@ -151,7 +151,7 @@ SELECT
 FROM
     reservations
 WHERE
-    STATUS = 'booked'
+    STATUS = $3
     AND id = $1
     AND user_id = $2
 LIMIT
@@ -161,10 +161,11 @@ LIMIT
 type GetUserBookingByIdParams struct {
 	ID     uuid.UUID `json:"id"`
 	UserID uuid.UUID `json:"user_id"`
+	Status string    `json:"status"`
 }
 
 func (q *Queries) GetUserBookingById(ctx context.Context, arg GetUserBookingByIdParams) (Reservation, error) {
-	row := q.db.QueryRow(ctx, getUserBookingById, arg.ID, arg.UserID)
+	row := q.db.QueryRow(ctx, getUserBookingById, arg.ID, arg.UserID, arg.Status)
 	var i Reservation
 	err := row.Scan(
 		&i.ID,

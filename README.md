@@ -38,10 +38,6 @@ USER ROUTES
 - [x] DELETE /api/bookings/{reservationId} -> user can remove seats they have booked
 
 
-TODO (clean up after initial implementation)
-- [ ] validate the reserveSeatRequest, the user should own all the reservations and they should not be already booked
-
-
 ## Postmoterm
 If I was restarting this project or implementing it for a business, here are some of the things I would change given what I have learnt from it
 - I would rename the `reservations` table to `bookings` table and have the possible status as `pending` and `booked`. I would keep the same structure. I think naming the table bookings is more intuitive because then the routes would all have the prefix instead of mixing reservations and bookings  `/api/bookings`
