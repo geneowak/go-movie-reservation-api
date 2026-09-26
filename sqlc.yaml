@@ -49,19 +49,19 @@ sql:
             go_struct_tag: 'json:"-"'
           - column: "movies.experience_types"
             go_type:
-              import: "github.com/geneowak/go-expense-tracker/internal/types"
+              import: "github.com/geneowak/cinehold/internal/types"
               type: "StringSlice"
           - column: "movies.genre"
             go_type:
-              import: "github.com/geneowak/go-expense-tracker/internal/types"
+              import: "github.com/geneowak/cinehold/internal/types"
               type: "StringSlice"
           - column: "cinemas.experience_types"
             go_type:
-              import: "github.com/geneowak/go-expense-tracker/internal/types"
+              import: "github.com/geneowak/cinehold/internal/types"
               type: "StringSlice"
           - column: "cinemas.seat_map"
             go_type:
-              import: "github.com/geneowak/go-expense-tracker/internal/types"
+              import: "github.com/geneowak/cinehold/internal/types"
               type: "SeatMap"
           - column: "filtered_shows.show_times"
             go_type: "encoding/json.RawMessage"
