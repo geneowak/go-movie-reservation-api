@@ -11,7 +11,7 @@ import (
 )
 
 type updateAdminStatusRequest struct {
-	IsAdmin bool `json:"is_admin"`
+	IsAdmin *bool `json:"is_admin" validate:"required"`
 }
 
 func (cfg *ApiConfig) handleUpdateAdminStatus(w http.ResponseWriter, r *http.Request) {
@@ -35,9 +35,14 @@ func (cfg *ApiConfig) handleUpdateAdminStatus(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	if err := cfg.Validate.Struct(req); err != nil {
+		handleValidationErrors(w, err)
+		return
+	}
+
 	updatedUser, err := cfg.DB.UpdateUserAdminStatus(r.Context(), database.UpdateUserAdminStatusParams{
 		ID:      userId,
-		IsAdmin: req.IsAdmin,
+		IsAdmin: *req.IsAdmin,
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
