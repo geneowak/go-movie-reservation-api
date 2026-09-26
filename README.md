@@ -603,5 +603,10 @@ and regenerate.
 ### Known gaps in the tooling
 
 There's no CI pipeline and no linter config committed yet, so run `go vet ./...` and
-`gofmt -l .` locally before opening a pull request. There's also no `LICENSE` file — add
-one before publishing this anywhere you care about.
+`gofmt -l .` locally before opening a pull request.
+
+---
+
+## License
+
+[MIT](LICENSE) — free to use, modify and ship, including commercially.
