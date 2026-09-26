@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/geneowak/go-expense-tracker/internal/database"
-	"github.com/geneowak/go-expense-tracker/internal/testdb"
+	"github.com/geneowak/cinehold/internal/database"
+	"github.com/geneowak/cinehold/internal/testdb"
 	"github.com/google/go-cmp/cmp"
 )
 

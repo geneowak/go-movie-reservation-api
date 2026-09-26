@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/geneowak/go-expense-tracker/internal/database"
-	"github.com/geneowak/go-expense-tracker/internal/types"
+	"github.com/geneowak/cinehold/internal/database"
+	"github.com/geneowak/cinehold/internal/types"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )

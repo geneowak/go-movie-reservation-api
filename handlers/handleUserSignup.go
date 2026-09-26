@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/geneowak/go-expense-tracker/internal/auth"
-	"github.com/geneowak/go-expense-tracker/internal/database"
+	"github.com/geneowak/cinehold/internal/auth"
+	"github.com/geneowak/cinehold/internal/database"
 )
 
 type createUserRequest struct {

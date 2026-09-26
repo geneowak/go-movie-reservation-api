@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/geneowak/go-expense-tracker/internal/database"
+	"github.com/geneowak/cinehold/internal/database"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )

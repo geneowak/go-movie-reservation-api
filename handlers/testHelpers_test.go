@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/geneowak/go-expense-tracker/internal/database"
+	"github.com/geneowak/cinehold/internal/database"
 )
 
 func newTestApiConfig(querier database.Querier) *ApiConfig {

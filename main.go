@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/geneowak/go-expense-tracker/handlers"
-	"github.com/geneowak/go-expense-tracker/internal/database"
+	"github.com/geneowak/cinehold/handlers"
+	"github.com/geneowak/cinehold/internal/database"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )

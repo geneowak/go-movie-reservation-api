@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/geneowak/go-expense-tracker/internal/hashing"
+	"github.com/geneowak/cinehold/internal/hashing"
 )
 
 func HashPassword(password string) (string, error) {

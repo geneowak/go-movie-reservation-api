@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/geneowak/go-expense-tracker/internal/auth"
+	"github.com/geneowak/cinehold/internal/auth"
 	"github.com/google/uuid"
 )
 

@@ -7,8 +7,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/geneowak/go-expense-tracker/internal/database"
-	migrations "github.com/geneowak/go-expense-tracker/sql"
+	"github.com/geneowak/cinehold/internal/database"
+	migrations "github.com/geneowak/cinehold/sql"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/geneowak/go-expense-tracker/internal/auth"
-	"github.com/geneowak/go-expense-tracker/internal/database"
+	"github.com/geneowak/cinehold/internal/auth"
+	"github.com/geneowak/cinehold/internal/database"
 )
 
 func (cfg *ApiConfig) handleLogin(w http.ResponseWriter, r *http.Request) {

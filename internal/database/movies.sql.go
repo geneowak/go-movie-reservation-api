@@ -9,7 +9,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/geneowak/go-expense-tracker/internal/types"
+	"github.com/geneowak/cinehold/internal/types"
 	"github.com/google/uuid"
 )
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/geneowak/go-expense-tracker/internal/auth"
+	"github.com/geneowak/cinehold/internal/auth"
 )
 
 func (cfg *ApiConfig) middlewareAdminAuth(next http.HandlerFunc) http.HandlerFunc {

@@ -1,4 +1,4 @@
-module github.com/geneowak/go-expense-tracker
+module github.com/geneowak/cinehold
 
 go 1.27.1
 

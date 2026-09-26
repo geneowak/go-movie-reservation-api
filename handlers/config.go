@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/geneowak/go-expense-tracker/internal/database"
+	"github.com/geneowak/cinehold/internal/database"
 	"github.com/go-playground/validator/v10"
 )
 
