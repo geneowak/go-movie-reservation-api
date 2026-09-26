@@ -35,6 +35,16 @@ func respondWithJSON(w http.ResponseWriter, code int, payload any) {
 	w.Write(data)
 }
 
+func respondWithValidationErrors(w http.ResponseWriter, errorsMap map[string][]string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusUnprocessableEntity)
+
+	json.NewEncoder(w).Encode(map[string]any{
+		"message": "There were some validation errors",
+		"errors":  errorsMap,
+	})
+}
+
 func handleJsonDecodeError(w http.ResponseWriter, err error) {
 	if typeErr, ok := errors.AsType[*json.UnmarshalTypeError](err); ok {
 		msg := fmt.Sprintf("Invalid field %s: Expected type %s, but got %s", typeErr.Field, typeErr.Type.String(), typeErr.Value)

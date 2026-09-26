@@ -2,10 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/geneowak/go-expense-tracker/internal/database"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type seatBookingRequest struct {
@@ -24,18 +27,39 @@ func (cfg *ApiConfig) handleSeatBooking(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// going to first do the basic booking and will come back and validate
-	// TODO: validate that the reservation belongs to the user and that the status is not in booked
-	response := []database.Reservation{}
 	userId, _ := GetUserIdFromContext(r.Context())
+
+	errorMsgs := map[string][]string{}
+	for i, id := range req.SeatReservations {
+		// no error is expected here because we validated that they are uuids
+		bookingId, _ := uuid.Parse(id)
+		// bookings can only be made on non booked reservations that the user owns
+		_, err := cfg.DB.GetUserBookingById(r.Context(), database.GetUserBookingByIdParams{
+			ID:     bookingId,
+			Status: "available",
+			UserID: userId,
+		})
+		if err != nil {
+			field := fmt.Sprintf("seat_reservations[%v]", i)
+			if errors.Is(err, pgx.ErrNoRows) {
+				errorMsgs[field] = append(errorMsgs[field], "Seat Reservation not found.")
+			} else {
+				errorMsgs[field] = append(errorMsgs[field], "Error checking seat reservation.")
+			}
+		}
+	}
+	if len(errorMsgs) > 0 {
+		respondWithValidationErrors(w, errorMsgs)
+		return
+	}
+
+	response := []database.Reservation{}
 	for _, stringId := range req.SeatReservations {
-		// don't expect an error here because we validated that they are uuids
 		reservationId, _ := uuid.Parse(stringId)
 		reservation, err := cfg.DB.MarkReservationBooked(r.Context(), database.MarkReservationBookedParams{
 			ID:     reservationId,
 			UserID: userId,
 		})
-		// not going to handle errors yet
 		if err != nil {
 			// TODO: we'll need to be doing all this in a transaction so that when an error occurs we rollback everything
 			respondWithError(w, http.StatusInternalServerError, "Error creating reservation", err)
