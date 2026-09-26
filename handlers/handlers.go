@@ -8,9 +8,9 @@ import (
 func SetupServer(cfg *ApiConfig, filePathRoot, port string) *http.Server {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /api/signup", cfg.handleUserSignup)
+	mux.HandleFunc("POST /api/auth/signup", cfg.handleUserSignup)
 
-	mux.HandleFunc("POST /api/login", cfg.handleLogin)
+	mux.HandleFunc("POST /api/auth/login", cfg.handleLogin)
 
 	mux.HandleFunc("POST /api/auth/refresh", cfg.handleRefreshToken)
 	mux.HandleFunc("POST /api/auth/revoke", cfg.handleRevokeToken)
