@@ -12,9 +12,14 @@ Go 1.27 · PostgreSQL 18+ · stdlib `net/http` · sqlc · goose · no web framew
 
 ## Description
 
-Cinehold implements the [Movie Reservation System](https://roadmap.sh/projects/movie-reservation-system)
-spec end to end. The interesting part isn't the CRUD — it's what happens when two people
-want the same seat at the same time.
+Cinehold is a complete REST backend for a movie ticket reservation system, built to the
+[Movie Reservation System](https://roadmap.sh/projects/movie-reservation-system) spec.
+Users browse what's playing, hold a seat while they decide, and convert that hold into a
+booking; admins manage the catalogue of movies, locations, cinemas, seat maps and
+showtimes. All 22 endpoints are implemented.
+
+The part that shaped the design is what happens when two people want the same seat at the
+same time.
 
 - **Auth** — short-lived HS256 access tokens (1 hour) paired with long-lived opaque
   refresh tokens (7 days) that live in the database, so they can be revoked server-side.
@@ -30,9 +35,9 @@ want the same seat at the same time.
 - **Abandoned hold recovery** — holds expire after 10 minutes and are reclaimed lazily on
   the next reservation attempt for that seat, so no background sweeper is required.
 
-Everything is generated or type-checked: SQL is written by hand in `sql/queries` and turned
-into typed Go by sqlc, and the schema is migrated by goose. There is no ORM and no
-reflection-based query builder anywhere in the project.
+Every query is authored as SQL in `sql/queries` and compiled into type-safe Go by sqlc,
+and the schema is migrated by goose. A malformed query fails at build time instead of in
+production. There is no ORM and no reflection-based query builder anywhere in the project.
 
 ---
 
