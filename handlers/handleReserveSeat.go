@@ -50,7 +50,9 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 	}
 	// we'll get the cinema of the show time and validate that the seat no exists
 	if !validateSeatNo(req, results.Cinema) {
-		throwAsValidationError(w, "seat", "Seat number does not exist in show time cinema")
+		respondWithValidationErrors(w, map[string][]string{
+			"seat": {"Seat number does not exist in show time cinema"},
+		})
 		return
 	}
 
@@ -69,12 +71,16 @@ func (cfg *ApiConfig) handleReserveSeat(w http.ResponseWriter, r *http.Request) 
 		}
 	} else {
 		if existingBooking.Status == "booked" {
-			throwAsValidationError(w, "seat", "Seat number has already been booked")
+			respondWithValidationErrors(w, map[string][]string{
+				"seat": {"Seat number has already been booked"},
+			})
 			return
 		}
 		// user is only allowed to reserve a seat for 10 mins
 		if existingBooking.ReservedAt != nil && time.Since(*existingBooking.ReservedAt) < 10*time.Minute {
-			throwAsValidationError(w, "seat", "Seat number is currently reserved.")
+			respondWithValidationErrors(w, map[string][]string{
+				"seat": {"Seat number is currently reserved."},
+			})
 			return
 		}
 
