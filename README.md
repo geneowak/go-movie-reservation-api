@@ -72,7 +72,7 @@ a seat cannot be double-booked even with several instances behind a load balance
 - **PostgreSQL 18+** — every primary key is generated with the built-in `uuidv7()`
   function, which landed in PostgreSQL 18
 - **`sqlc`** — only needed if you change anything under `sql/`
-- **`goose`** — only needed to run migrations
+- **`goose`** — only needed to run migrations and the seed
 
 ### 1. Get the code and configure it
 
@@ -121,29 +121,87 @@ are also embedded into the binary, so the goose CLI is enough:
 goose -dir sql/schema postgres "$DB_URL" up
 ```
 
-### 4. Run it
+### 4. Seed the database
+
+Migrations give you an empty schema. To get a browsable catalogue and two working
+accounts, apply the seed:
+
+```bash
+goose -dir sql/schema/seed -no-versioning postgres "$DB_URL" up
+```
+
+The `-no-versioning` flag is what makes this safe to run alongside the numbered
+migrations. Without it goose would record the seed in the same `goose_db_version`
+table and its version numbers would collide with `sql/schema`, permanently marking
+it as applied. With it, the statements are applied in file order and nothing is
+recorded, so **the seed is safe to re-run at any time** — every row uses a fixed
+id and `ON CONFLICT DO NOTHING`, so a second run is a no-op rather than a
+duplicate key error.
+
+It creates two throwaway accounts, one location, two cinemas, three movies,
+three showtimes and three existing bookings:
+
+| Email | Password | Admin |
+| --- | --- | --- |
+| `admin@cinehold.test` | `password123` | yes |
+| `user@cinehold.test` | `password123` | no |
+
+These credentials are committed on purpose so a reviewer can get in without
+running SQL. Don't deploy them anywhere.
+
+### 5. Run it
 
 ```bash
 go run .
 # Listening on port: 8080
 ```
 
-### 5. Make your first request
+### 6. Book a seat
+
+With the seed applied, the whole product is reachable in four calls. Log in as the
+seeded admin and pull a token out of the response:
 
 ```bash
-# create an account
-curl -X POST http://localhost:8080/api/auth/signup \
-  -H "Content-Type: application/json" \
-  -d '{"email":"you@example.com","password":"secret123"}'
-
-# log in — response contains the user, an access token and a refresh token
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"you@example.com","password":"secret123"}'
+  -d '{"email":"admin@cinehold.test","password":"password123"}'
 ```
 
-The first account you need to be an admin is whichever one an existing admin promotes.
-Set `is_admin = true` for your user directly in the database to bootstrap.
+```bash
+# what's showing — the optional filters are genre, time and date
+curl "http://localhost:8080/api/movies" -H "Authorization: Bearer $TOKEN"
+curl "http://localhost:8080/api/movies?genre=Action" -H "Authorization: Bearer $TOKEN"
+curl "http://localhost:8080/api/movies?time=19:00" -H "Authorization: Bearer $TOKEN"
+```
+
+Grab a `show_times` id out of that response, then hold a seat and convert the hold
+into a booking:
+
+```bash
+# hold a seat for 10 minutes, returns a reservation id
+curl -X POST http://localhost:8080/api/seats/reserve \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"seat":"C:1","show_time_id":"<show-time-id>"}'
+
+# buy one or more holds in a single call
+curl -X POST http://localhost:8080/api/seats/book \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"seat_reservations":["<reservation-id>"]}'
+
+# the admin analytics endpoint now counts it
+curl http://localhost:8080/api/show-times/<show-time-id> \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+> The `genre` filter matches JSON array elements exactly, so it is **case
+> sensitive** — `?genre=Action` returns results, `?genre=action` returns nothing.
+>
+> A filter that matches no rows responds `200` with a `null` body rather than an
+> empty array. See [Things to fix](#things-to-fix).
+
+Prefer to start from scratch? Sign up your own account instead, then promote it the
+way the seed did — set `is_admin = true` for your user directly in the database.
+The admin routes require an existing admin, so there has to be a first one.
 
 ---
 
@@ -384,6 +442,7 @@ internal/
   testdb/             test database helpers
 sql/
   schema/             goose migrations
+    seed/             development seed data, applied with goose -no-versioning
   queries/            sqlc queries, with -- name: QueryName :one/:many/:exec
   embed.go            embeds schema/*.sql into the binary
 ```
@@ -507,6 +566,8 @@ trait — every case starts from a clean slate without truncating tables between
 ### Things to fix
 
 - [ ] Seat bookings should be handled in a db transaction so that all are rolled back in case of an error
+- [ ] The `genre` filter should be case insensitive. It matches JSON array elements with `@>`, so `?genre=Action` matches and `?genre=action` silently returns nothing
+- [ ] List endpoints should return `[]` rather than `null` when a filter matches no rows. `respondWithJSON` marshals a nil slice to `null`, so a client that does `data.map(...)` on an empty result throws
 - [ ] Rename the `reservations` table to `bookings`, with `status` values of `pending` and `booked`. The structure can stay as it is, but `bookings` is the more intuitive name — right now routes say `/api/bookings` while the table behind them is called `reservations`, which is needlessly confusing
 - [ ] Change every `timestamp` column to `timestamptz` in UTC. This would have prevented the time-zone bug I hit while calculating how long a seat had been reserved; I patched it in `7a47fd6` by converting the `reservations` table, but that migration shouldn't have been necessary
 - [ ] Add pagination. No query uses `LIMIT`/`OFFSET`, so `GET /api/movies`, `GET /api/locations` and `GET /api/bookings` all return unbounded result sets
@@ -567,6 +628,19 @@ Two things to know:
   `handlers/`, which puts it at the repo root.
 
 ### The development loop
+
+Start from a clean database whenever you want the seeded state back, since nothing
+in the app resets it for you:
+
+```bash
+dropdb cinehold && createdb cinehold
+goose -dir sql/schema postgres "$DB_URL" up
+goose -dir sql/schema/seed -no-versioning postgres "$DB_URL" up
+```
+
+The seed is idempotent, so re-running just the last line is usually enough, and
+rolling it back by hand is a single `goose -dir sql/schema/seed -no-versioning
+postgres "$DB_URL" down`.
 
 The database layer is generated, so SQL changes have two steps:
 
