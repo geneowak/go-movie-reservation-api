@@ -43,25 +43,24 @@ production. There is no ORM and no reflection-based query builder anywhere in th
 
 ## Motivation
 
-**The concurrency problem is the heart of this project.** Every ticketing system
-eventually hits the same wall: you cannot hold a database row lock for the ten minutes a
-user spends deciding, and you cannot let two requests both believe they own seat `A:4`.
-Cinehold resolves that by pushing the invariant down into the schema — a unique
-constraint, a status column, a timestamp — instead of trusting every code path to remember
-to check. The application-layer checks are there to return friendlier errors; the database
-is what makes correctness guaranteed.
+Booking a cinema seat looks simple until you get it right: you cannot hold a row lock for
+the ten minutes a user spends deciding, and you cannot let two requests both believe they
+own `A:4` — yet shoppers expect a seat to stay theirs while they pick the next one. I spent
+seven-plus years building web applications in PHP and Laravel, and recently picked up Go to
+get better at it. I'm moving toward systems programming, but I'm starting with the web
+because it's what I know — the plan is to get fluent in Go on familiar ground, then keep
+going. That meant no framework and no ORM, which Go's standard library supports
+comfortably, and a project substantial enough to learn from, which is how I found the
+[Movie Reservation System spec](https://roadmap.sh/projects/movie-reservation-system).
 
-**The rest is deliberate engineering rather than convenience.** No web framework, no ORM,
-no dependency injection container. Routing is `net/http.ServeMux` with Go 1.22+
-method-and-pattern matching. Handlers depend on a `database.Querier` *interface* supplied
-through a single `ApiConfig` struct, which is what makes them straightforward to test. SQL
-is compiled by sqlc rather than assembled at runtime, so a malformed query fails at build
-time instead of in production. Each of those decisions costs more on day one and pays for
-itself every time the code is read or changed afterwards.
-
-**The API surface is complete and coherent.** What remains is hardening — transactions,
-pagination, observability — and that list is written down plainly in
-[Retrospective & Future Work](#retrospective--future-work) rather than left implicit.
+I built it to be legible on two levels. As web work, it covers what a production Go service
+needs — token auth, admin-only routes, input validation, schema migrations, a clean test
+seam, consistent error contracts — and none of it comes from a framework, so the mechanics
+stay visible. As systems work, the substance sits underneath: concurrency correctness
+enforced by the schema rather than by trust, queries compiled ahead of time so a broken one
+cannot reach production, aggregates assembled in SQL to avoid N+1 round trips. And nothing
+assumes a single process — a seat cannot be double-booked even with several instances
+behind a load balancer.
 
 ---
 
